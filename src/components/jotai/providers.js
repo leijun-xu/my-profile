@@ -1,4 +1,4 @@
-'use Client';
+'use client';
 
 import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";

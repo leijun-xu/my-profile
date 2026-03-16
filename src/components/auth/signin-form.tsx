@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { redirect } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema } from "@/lib/validations";
@@ -13,7 +13,7 @@ import type { UserForm } from "@/lib/validations";
 type SubmitButtonProp = { status: boolean }
 function SubmitButton({ status }: SubmitButtonProp) {
     return (
-        <Button type="submit" disabled={status} className="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">
+        <Button type="submit" disabled={status} className="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg font-semibold">
             {
                 status ? 'Siging In...' : 'Sign In'
             }
@@ -22,6 +22,7 @@ function SubmitButton({ status }: SubmitButtonProp) {
 }
 
 export function SignInForm() {
+    const router = useRouter()
     const [submitting, setSubmitting] = useState(false)
     const {
         register,
@@ -30,26 +31,36 @@ export function SignInForm() {
     } = useForm<UserForm>({
         resolver: zodResolver(signInSchema), // 前端实时验证
     });
-    const onSubmit = (data: UserForm) => {
+
+    const { data: session } = useSession()
+
+    const onSubmit = async (data: UserForm) => {
         setSubmitting(true);
+
         // 数据已经过 Zod 验证，直接发送到后端
         const { email, password, firstName, lastName } = data
-        signIn('signin-credential', {
-            email,
-            password,
-            firstName,
-            lastName,
-        }).then(result => {
-            if (result?.ok) {
-                redirect('/dashboard')
+        if (session) {
+            router.push('/resume')
+        } else {
+            const result = await signIn('signin-credential', {
+                email,
+                password,
+                firstName,
+                lastName,
+            })
+
+            if (!result?.error) {
+                console.log(12312312312)
+                setSubmitting(false);
+                router.push('/resume')
             }
-        }).finally(() => {
-            setSubmitting(false);
-        })
+        }
+
+
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} >
             <div className="flex -mx-3">
                 <div className="w-1/2 px-3 mb-5">
                     <label className="text-xs font-semibold px-1">First name</label>
@@ -57,6 +68,7 @@ export function SignInForm() {
                         <div className="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center"><i className="mdi mdi-account-outline text-gray-400 text-lg"></i></div>
                         <Input type="text"
                             {...register("firstName")}
+                            defaultValue={'徐'}
                             className="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500" placeholder="John" />
                     </div>
                     {errors.firstName &&
@@ -69,6 +81,7 @@ export function SignInForm() {
                     <div className="flex">
                         <div className="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center"><i className="mdi mdi-account-outline text-gray-400 text-lg"></i></div>
                         <Input type="text"
+                            defaultValue={'磊君'}
                             {...register("lastName")}
                             className="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500" placeholder="Smith" />
                     </div>
@@ -84,6 +97,7 @@ export function SignInForm() {
                     <div className="flex">
                         <div className="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center"><i className="mdi mdi-email-outline text-gray-400 text-lg"></i></div>
                         <Input
+                            defaultValue={'15221770395@163.com'}
                             {...register("email")}
                             type="email" className="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500" placeholder="johnsmith@example.com" />
                     </div>
@@ -100,6 +114,7 @@ export function SignInForm() {
                     <div className="flex">
                         <div className="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center"><i className="mdi mdi-lock-outline text-gray-400 text-lg"></i></div>
                         <Input
+                            defaultValue={'15221770395@163.com'}
                             {...register("password")}
                             type="password" className="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500" placeholder="************" />
                     </div>

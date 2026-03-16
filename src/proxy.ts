@@ -14,6 +14,7 @@ export async function proxy(req: NextRequest) {
     }
 
     const { session, requestToken, isAuthenticated } = await getServerAuthContext(req)
+    console.log(isAuthenticated, 'isAuthenticated')
     if (!isAuthenticated) {
         const basePath = process.env.BASE_PATH || ''
         const signInUrl = new URL(`${basePath}/auth/signin`, origin)

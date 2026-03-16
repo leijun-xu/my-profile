@@ -1,22 +1,24 @@
-import { Button } from "@/components/ui/button"
-import Link from "next/link";
+'use client';
+
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Loader } from "lucide-react";
+import { useEffect } from "react";
 
 export default function Page() {
-  return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Link href={'/auth/signin'}>
-            <Button className="mt-2">Signin</Button>
-          </Link>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
-  )
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'loading') {
+      return;
+    }
+    if (!session) {
+      router.push('/auth/signin')
+    } else {
+      router.push('/resume')
+    }
+  }
+    , [session, status, router])
+  return <Loader />
 }

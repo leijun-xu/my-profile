@@ -23,9 +23,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const requestToken: string = await new Promise(resolve => {
-            setTimeout(() => { resolve(Date.now() + '') }, 1000)
-          })
+          const requestToken: string = Date.now() + '';
           const { email, password, firstName, lastName } = credentialsSchema.parse(credentials);
           if (email && firstName && lastName && password) {
             return { id: email, email, firstName, lastName, requestToken }
@@ -68,6 +66,7 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
+        token.name = user.firstName + ' ' + user.lastName
         token.requestToken = user.requestToken;
         if (user.expiresIn) {
           token.exp = Math.floor(Date.now() / 1000 + Number(user.expiresIn))
