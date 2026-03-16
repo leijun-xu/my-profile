@@ -18,7 +18,7 @@ export default function AIChat() {
 
             <div
                 hidden={show}
-                className="z-20 fixed bottom-[calc(4rem+1.5rem)] shadow-2xs right-0 mr-4 bg-white p-6 rounded-lg border border-[#e5e7eb] w-[440px] h-[634px]">
+                className="z-20 fixed bottom-[calc(4rem+1.5rem)] shadow-2xs right-0 mr-4 bg-white p-6 rounded-lg border border-[#e5e7eb] md:w-[440px] lg:w-[440px] sm:w-[90%] h-[634px]">
                 <div className="flex flex-col space-y-1.5 pb-6">
                     <h2 className="font-semibold text-lg tracking-tight">Chatbot</h2>
                     <p className="text-sm text-[#6b7280] leading-3">Powered by Meta-Llama 3.1</p>
