@@ -10,7 +10,7 @@ export default function AIChat() {
         <>
             <button
                 onClick={e => setShow(!show)}
-                className="fixed bottom-4 right-4 inline-flex items-center justify-center text-sm font-medium disabled:pointer-events-none disabled:opacity-50 border rounded-full w-16 h-16 bg-black text-blue-400 hover:bg-gray-700 m-0 cursor-pointer border-gray-200 bg-none p-0 normal-case leading-5 hover:text-blue-600 "
+                className="z-20 fixed bottom-4 right-4 inline-flex items-center justify-center text-sm font-medium disabled:pointer-events-none disabled:opacity-50 border rounded-full w-16 h-16 bg-black text-blue-400 hover:bg-gray-700 m-0 cursor-pointer border-gray-200 bg-none p-0 normal-case leading-5 hover:text-blue-600 "
                 type="button" aria-haspopup="dialog" aria-expanded="false" data-state="closed">
                 <Bot className="w-9 h-9 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-x-0.5 group-hover:translate-x-0" />
             </button>
@@ -18,7 +18,7 @@ export default function AIChat() {
 
             <div
                 hidden={show}
-                className="fixed bottom-[calc(4rem+1.5rem)] shadow-2xs right-0 mr-4 bg-white p-6 rounded-lg border border-[#e5e7eb] w-[440px] h-[634px]">
+                className="z-20 fixed bottom-[calc(4rem+1.5rem)] shadow-2xs right-0 mr-4 bg-white p-6 rounded-lg border border-[#e5e7eb] w-[440px] h-[634px]">
                 <div className="flex flex-col space-y-1.5 pb-6">
                     <h2 className="font-semibold text-lg tracking-tight">Chatbot</h2>
                     <p className="text-sm text-[#6b7280] leading-3">Powered by Meta-Llama 3.1</p>
@@ -57,7 +57,7 @@ export default function AIChat() {
                             </path>
                         </svg></div>
                     </span>
-                        <p className="leading-relaxed"><span className="block font-bold text-gray-700">AI </span>Sorry, I couldn't find any
+                        <p className="leading-relaxed"><span className="block font-bold text-gray-700">AI </span>Sorry, I couldn&apos;t find any
                             information in the documentation about that. Expect answer to be less accurateI could not find the answer to
                             this in the verified sources.</p>
                     </div>

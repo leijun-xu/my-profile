@@ -156,7 +156,7 @@ export default function Page() {
           </div>
         </div>
       </section>
-      <footer className="absolute w-full h-36 bottom-0 p-8 px-16 bg-gray-800 text-gray-50">
+      <footer className="absolute w-full h-36 bottom-0 p-8 px-16 bg-gray-800 text-gray-50 z-10">
         <p className="text-2xl">Thank you for checking out my resume</p>
         <a className="text-lg" href="mailto:765285102@qq.com">765285102@qq.com</a>
       </footer>
