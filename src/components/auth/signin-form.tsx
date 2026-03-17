@@ -35,28 +35,30 @@ export function SignInForm() {
     const { data: session } = useSession()
 
     const onSubmit = async (data: UserForm) => {
-        setSubmitting(true);
-
-        // 数据已经过 Zod 验证，直接发送到后端
-        const { email, password, firstName, lastName } = data
-        if (session) {
-            router.push('/resume')
-        } else {
-            const result = await signIn('signin-credential', {
-                email,
-                password,
-                firstName,
-                lastName,
-            })
-
-            if (!result?.error) {
-                console.log(12312312312)
-                setSubmitting(false);
+        try {
+            setSubmitting(true);
+            // 数据已经过 Zod 验证，直接发送到后端
+            const { email, password, firstName, lastName } = data
+            if (session) {
                 router.push('/resume')
+            } else {
+                const result = await signIn('signin-credential', {
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                })
+
+                if (!result?.error) {
+                    setSubmitting(false);
+                    setTimeout(() => {
+                        router.push('/resume')
+                    }, 0)
+                }
             }
+        } catch (error) {
+            console.error(error)
         }
-
-
     };
 
     return (

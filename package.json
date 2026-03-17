@@ -12,7 +12,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^2.0.24",
+    "@ai-sdk/react": "^3.0.118",
     "@hookform/resolvers": "^5.2.2",
+    "ai": "^6.0.116",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "jotai": "^2.18.1",
@@ -24,6 +27,8 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7.71.2",
+    "react-select": "^5.10.2",
+    "recharts": "^3.8.0",
     "shadcn": "^4.0.8",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",

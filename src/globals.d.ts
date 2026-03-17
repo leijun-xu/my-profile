@@ -18,6 +18,7 @@ declare module "next-auth" {
       firstName?: string | null;
       lastName?: string | null;
       email?: string | null;
+      name?: string | null;
     };
     expires: string;
   }
@@ -28,6 +29,7 @@ declare module "next-auth" {
     lastName?: string | null;
     email?: string | null;
     expiresIn?: number;
+    name?: string | null;
     requestToken?: string;
   }
 }

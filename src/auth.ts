@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
           const requestToken: string = Date.now() + '';
           const { email, password, firstName, lastName } = credentialsSchema.parse(credentials);
           if (email && firstName && lastName && password) {
-            return { id: email, email, firstName, lastName, requestToken }
+            return { id: email, name: firstName + ' ' + lastName, email, firstName, lastName, requestToken }
           }
           return null;
         } catch (error) {
@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: '/auth/signin',
+    signIn: process.env.BASE_PATH + '/auth/signin',
   },
   session: {
     strategy: 'jwt',
@@ -82,6 +82,7 @@ export const authOptions: NextAuthOptions = {
           email: token.email as string,
           firstName: token.firstName as string,
           lastName: token.lastName as string,
+          name: token.firstName + ' ' + token.lastName
         };
         if (token.exp) {
           session.expires = new Date(token.exp * 1000).toISOString();

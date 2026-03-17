@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
+import { base_path } from "@/lib/const";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function fetchFun(url: string, config?: any) {
@@ -15,7 +16,7 @@ export default async function fetchFun(url: string, config?: any) {
         toast.error(data.error.message || 'Request Failure')
         const { status } = data;
         if (status === 403) {
-            signOut({ callbackUrl: '/auth/signin?error=403' })
+            signOut({ callbackUrl: base_path + '/auth/signin?error=403' })
         }
     }
     return data;
