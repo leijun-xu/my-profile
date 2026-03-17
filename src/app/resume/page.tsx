@@ -1,12 +1,18 @@
 'use client';
 
 import { Button } from "@/components/ui/button"
-import { Github, Loader, Mail, LogOut, PhoneCall, MapPin, QrCode } from 'lucide-react';
+import { Github, Loader, Mail, LogOut, PhoneCall, MapPin, FileUser } from 'lucide-react';
 import Skills from "@/components/resume/skill";
 import { base_path } from "@/lib/const";
 import { signOut, useSession } from "next-auth/react";
 import AIChat from "@/components/ai/ai-chat";
 import { Typewriter } from "@/components/resume/typeWriter";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider
+} from "@/components/ui/tooltip"
 
 const summary = '热爱 coding 的前端开发者，10年+时间从零到一参与了多个产品的完整生命周期。不仅熟悉React/Next.js技术栈，更懂得如何用技术驱动业务增长。善于将复杂业务需求转化为优雅的代码实现，是产品经理最喜欢的开发伙伴。'
 
@@ -188,24 +194,38 @@ export default function Page() {
       {/* 社交链接 */}
       <div className="flex justify-center gap-6 mt-12">
         {[
-          { icon: Github, href: 'https://github.com/leijun-xu/my-profile', label: 'GitHub' },
+          { icon: Github, href: 'https://github.com/leijun-xu/my-profile', label: 'GitHub', tooltip: 'Go to github to review code.' },
           // { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
           // { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-          { icon: Mail, href: 'mailto:765285102@qq.com', label: 'Email' },
+          { icon: Mail, href: 'mailto:765285102@qq.com', label: 'Email', tooltip: 'This is my email,you can contact me.' },
+          { icon: FileUser, href: './resume.pdf', label: 'Resume', download: true, tooltip: 'This is my PDF resume,you can download it.' },
+
         ].map((social, index) => (
-          <a
-            key={index}
-            href={social.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative"
-            aria-label={social.label}
-          >
-            <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur opacity-0 group-hover:opacity-50 transition duration-300"></div>
-            <div className="relative w-12 h-12 bg-gray-900/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-800 group-hover:border-purple-500 transition-all duration-300">
-              <social.icon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-300" />
-            </div>
-          </a>
+          <TooltipProvider key={index}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  key={index}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative"
+                  download={social.download}
+                  aria-label={social.label}
+                >
+                  <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur opacity-0 group-hover:opacity-50 transition duration-300"></div>
+                  <div className="relative w-12 h-12 bg-gray-900/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-800 group-hover:border-purple-500 transition-all duration-300">
+                    <social.icon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-300" />
+                  </div>
+                </a>
+
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{social.tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
         ))}
       </div>
 
