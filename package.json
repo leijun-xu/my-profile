@@ -2,7 +2,7 @@
   "name": "my-profile",
   "version": "0.0.1",
   "type": "module",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
