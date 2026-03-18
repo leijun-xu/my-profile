@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,9 @@ function SubmitButton({ status }: SubmitButtonProp) {
     )
 }
 
-export function SignInForm() {
+function SignInFormCom() {
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get('callbackUrl') || '/resume-auth';
     const router = useRouter()
     const [submitting, setSubmitting] = useState(false)
     const {
@@ -52,7 +54,7 @@ export function SignInForm() {
                 return;
             }
             if (result?.ok) {
-                router.push('/resume')
+                router.push(callbackUrl)
                 router.refresh()
             }
         } catch (error) {
@@ -132,4 +134,11 @@ export function SignInForm() {
             </div>
         </form>
     )
+}
+
+export const SignInForm = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SignInFormCom />
+        </Suspense>)
 }
