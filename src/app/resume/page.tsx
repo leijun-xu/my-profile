@@ -79,7 +79,7 @@ export default function Page() {
       <hr className="border-gray-400 mx-44" />
       <section className="px-5 md:px-20 mt-10 text-gray-300">
         <h4 className="mb-8 text-3xl font-bold text-center md:text-left bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Summary</h4>
-        <div className=" wrap-break-word md:h-[50px]">
+        <div className=" wrap-break-word md:h-[50px] w-full">
           <Typewriter text={summary} />
         </div>
       </section>

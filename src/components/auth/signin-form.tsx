@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema } from "@/lib/validations";
@@ -32,27 +32,28 @@ export function SignInForm() {
         resolver: zodResolver(signInSchema), // 前端实时验证
     });
 
-    const { data: session } = useSession()
-
     const onSubmit = async (data: UserForm) => {
         try {
             setSubmitting(true);
             // 数据已经过 Zod 验证，直接发送到后端
             const { email, password, firstName, lastName } = data
-            if (session) {
-                router.push('/resume')
-            } else {
-                const result = await signIn('signin-credential', {
-                    email,
-                    password,
-                    firstName,
-                    lastName,
-                })
+
+            const result = await signIn('signin-credential', {
+                email,
+                password,
+                firstName,
+                lastName,
+                redirect: false, // 加上，避免自动跳转
+            })
+            console.log('signIn result:', result); // 调试输出
+            if (result?.error) {
                 setSubmitting(false);
-                if (!result?.error) {
-                    router.push('/resume')
-                    router.refresh()
-                }
+                console.error('Sign in error:', result.error);
+                return;
+            }
+            if (result?.ok) {
+                router.push('/resume')
+                router.refresh()
             }
         } catch (error) {
             console.error(error)
