@@ -1,7 +1,10 @@
 'use client';
 
-import { Github, Mail, PhoneCall, MapPin, FileUser } from 'lucide-react';
+import { Button } from "@/components/ui/button"
+import { Github, Loader, Mail, LogOut, PhoneCall, MapPin, FileUser } from 'lucide-react';
 import Skills from "@/components/resume/skill";
+import { base_path } from "@/lib/const";
+import { signOut, useSession } from "next-auth/react";
 import AIChat from "@/components/ai/ai-chat";
 import { Typewriter } from "@/components/resume/typeWriter";
 import {
@@ -16,11 +19,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 const summary = '热爱 coding 的前端开发者，10年+时间从零到一参与了多个产品的完整生命周期。不仅熟悉React/Next.js技术栈，更懂得如何用技术驱动业务增长。善于将复杂业务需求转化为优雅的代码实现，是产品经理最喜欢的开发伙伴。'
 
 export default function Page() {
+  const { data: session, status } = useSession()
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
       <header>
         <nav className="w-full">
-          <div className="flex justify-start w-full px-16 py-8">
+          <div className="flex justify-between w-full px-16 py-8">
             <div className=" flex items-center gap-2">
               <Avatar size="lg">
                 <AvatarImage
@@ -31,6 +35,42 @@ export default function Page() {
               </Avatar>
               <span className="text-gray-300 text-md">徐磊君</span>
             </div>
+
+            <ul className="flex items-center gap-1 ">
+              {/* <li>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <a href="https://github.com/leijun-xu/my-profile" target="_blank" aria-label="Github"
+                          className="hover:text-blue-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-9 h-9" fill="currentColor"
+                            viewBox="0 0 16 16">
+                            <path
+                              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+                          </svg>
+                        </a>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>go to Github,view the code.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </li> */}
+              {/* <li>
+                  <Link href={'/ai'} className="hover:text-blue-600 group">
+                    <Bot className="w-9 h-9 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-x-0.5 group-hover:translate-x-0" />
+                  </Link>
+                </li> */}
+              <li>
+                <div className="flex items-center gap-1 cursor-pointer">
+                  <div className="rounded-lg bg-blue-500 text-white border-2 border-white w-8 h-8 flex justify-center items-center">{session?.user?.firstName?.substr(0, 1)}</div>
+                  <div className="text-gray-300 ">{status === 'loading' ? <Loader className="w-6 h-6" /> : session?.user?.name}</div>
+                </div>
+              </li>
+              <li>
+                <Button onClick={e => signOut({ callbackUrl: base_path + '/auth/signin' })}><LogOut className=" w-7 h-7" /></Button>
+              </li>
+            </ul>
           </div>
         </nav>
       </header>

@@ -23,7 +23,7 @@ function SubmitButton({ status }: SubmitButtonProp) {
 
 export function SignInForm() {
     const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get('callbackUrl') || '/resume';
+    const callbackUrl = searchParams.get('callbackUrl') || '/resume-auth';
     const router = useRouter()
     const [submitting, setSubmitting] = useState(false)
     const {

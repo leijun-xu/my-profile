@@ -7,7 +7,8 @@ export async function proxy(req: NextRequest) {
     const isPublicRoute = pathname === '/' ||
         pathname.startsWith('/auth/') ||
         pathname.startsWith('/sso-callback') ||
-        pathname === '/health'
+        pathname === '/health' ||
+        pathname === '/resume'
 
     if (isPublicRoute) {
         return NextResponse.next()
