@@ -13,7 +13,8 @@ import {
   TooltipTrigger,
   TooltipProvider
 } from "@/components/ui/tooltip"
-import { Avatar, AvatarFallback, AvatarImage, AvatarBadge } from "@/components/ui/avatar"
+import DevIcons from "@/components/devtool/devtoolIcon";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const summary = '热爱 coding 的前端开发者，10年+时间从零到一参与了多个产品的完整生命周期。不仅熟悉React/Next.js技术栈，更懂得如何用技术驱动业务增长。善于将复杂业务需求转化为优雅的代码实现，是产品经理最喜欢的开发伙伴。'
 
@@ -240,8 +241,9 @@ export default function Page() {
       </div>
 
       {/* 底部文字 */}
-      <div className="text-center p-8 text-gray-500 text-sm ">
-        <p>© 2026 resume of Xuleijun</p>
+      <div className=" p-8 text-gray-500 text-sm  flex items-center justify-center h-3">
+        <p>© 2026 resume of Xuleijun, by&nbsp;&nbsp;&nbsp;</p>
+        <DevIcons />
       </div>
     </div>
   )
