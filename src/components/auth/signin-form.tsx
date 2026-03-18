@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,7 +21,7 @@ function SubmitButton({ status }: SubmitButtonProp) {
     )
 }
 
-export function SignInForm() {
+function SignInFormCom() {
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '/resume-auth';
     const router = useRouter()
@@ -134,4 +134,11 @@ export function SignInForm() {
             </div>
         </form>
     )
+}
+
+export const SignInForm = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SignInFormCom />
+        </Suspense>)
 }
