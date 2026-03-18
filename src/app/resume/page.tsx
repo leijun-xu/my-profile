@@ -13,6 +13,7 @@ import {
   TooltipTrigger,
   TooltipProvider
 } from "@/components/ui/tooltip"
+import { Avatar, AvatarFallback, AvatarImage, AvatarBadge } from "@/components/ui/avatar"
 
 const summary = '热爱 coding 的前端开发者，10年+时间从零到一参与了多个产品的完整生命周期。不仅熟悉React/Next.js技术栈，更懂得如何用技术驱动业务增长。善于将复杂业务需求转化为优雅的代码实现，是产品经理最喜欢的开发伙伴。'
 
@@ -22,10 +23,20 @@ export default function Page() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
       <header>
         <nav className="w-full">
-          <div className="flex justify-end w-full px-16 py-8">
-            <div>
-              <ul className="flex items-end items-center gap-1 ">
-                {/* <li>
+          <div className="flex justify-between w-full px-16 py-8">
+            <div className=" flex items-center gap-2">
+              <Avatar size="lg">
+                <AvatarImage
+                  src="https://avatars.githubusercontent.com/u/243532682?v=4&size=64"
+                  alt="@shadcn"
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <span className="text-gray-300 text-md">徐磊君</span>
+            </div>
+
+            <ul className="flex items-center gap-1 ">
+              {/* <li>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -44,22 +55,21 @@ export default function Page() {
                     </Tooltip>
                   </TooltipProvider>
                 </li> */}
-                {/* <li>
+              {/* <li>
                   <Link href={'/ai'} className="hover:text-blue-600 group">
                     <Bot className="w-9 h-9 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-x-0.5 group-hover:translate-x-0" />
                   </Link>
                 </li> */}
-                <li>
-                  <div className="flex items-center gap-1 cursor-pointer">
-                    <div className="rounded-lg bg-blue-500 text-white border-2 border-white w-8 h-8 flex justify-center items-center">{session?.user?.firstName?.substr(0, 1)}</div>
-                    <div className="text-gray-300 ">{status === 'loading' ? <Loader className="w-6 h-6" /> : session?.user?.name}</div>
-                  </div>
-                </li>
-                <li>
-                  <Button onClick={e => signOut({ callbackUrl: base_path + '/auth/signin' })}><LogOut className=" w-7 h-7" /></Button>
-                </li>
-              </ul>
-            </div>
+              <li>
+                <div className="flex items-center gap-1 cursor-pointer">
+                  <div className="rounded-lg bg-blue-500 text-white border-2 border-white w-8 h-8 flex justify-center items-center">{session?.user?.firstName?.substr(0, 1)}</div>
+                  <div className="text-gray-300 ">{status === 'loading' ? <Loader className="w-6 h-6" /> : session?.user?.name}</div>
+                </div>
+              </li>
+              <li>
+                <Button onClick={e => signOut({ callbackUrl: base_path + '/auth/signin' })}><LogOut className=" w-7 h-7" /></Button>
+              </li>
+            </ul>
           </div>
         </nav>
       </header>

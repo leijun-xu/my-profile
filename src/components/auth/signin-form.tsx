@@ -48,12 +48,10 @@ export function SignInForm() {
                     firstName,
                     lastName,
                 })
-
+                setSubmitting(false);
                 if (!result?.error) {
-                    setSubmitting(false);
-                    setTimeout(() => {
-                        router.push('/resume')
-                    }, 0)
+                    router.push('/resume')
+                    router.refresh()
                 }
             }
         } catch (error) {
