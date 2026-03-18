@@ -20,10 +20,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <Providers>
-          {children}
-        </Providers>
-        <Toaster />
+        <div className="w-screen overflow-x-hidden min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+          <Providers>
+            {children}
+          </Providers>
+          <Toaster />
+        </div>
       </body>
     </html>
   )

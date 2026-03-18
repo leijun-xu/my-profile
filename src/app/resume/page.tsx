@@ -66,7 +66,7 @@ export default function Page() {
       <AIChat />
 
       <hr className="border-gray-400 mx-44" />
-      <section className="px-20 mt-10 text-gray-300">
+      <section className="px-5 md:px-20 mt-10 text-gray-300">
         <h4 className="mb-8 text-3xl font-bold text-center md:text-left bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Summary</h4>
         <div className=" wrap-break-word md:h-[50px]">
           <Typewriter text={summary} />
@@ -77,7 +77,7 @@ export default function Page() {
       <Skills />
 
       <hr className="border-gray-400 mx-44" />
-      <section className="px-20 mt-10 text-gray-300">
+      <section className="px-5 md:px-20 mt-10 text-gray-300">
         <h4 className="mb-8 text-3xl font-bold text-center md:text-left bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Experience</h4>
         <div className="grid grid-cols-1 md:grid-cols-6 my-10">
           <div className="flex flex-col col-span-2 mb-4 md:mb-0">
@@ -138,7 +138,7 @@ export default function Page() {
         </div>
       </section>
       <hr className="border-gray-400 mx-44" />
-      <section className="px-20 mt-10 font-semibold ">
+      <section className="px-5 md:px-20 mt-10 font-semibold ">
         <h4 className="mb-8 text-3xl font-bold text-center md:text-left bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Education</h4>
         <div className="grid grid-cols-1 md:grid-cols-6 my-10 text-gray-300">
           <div className="flex flex-col col-span-2 mb-4 md:mb-0">
@@ -158,7 +158,7 @@ export default function Page() {
       </section>
 
       <hr className="border-gray-400 mx-44" />
-      <section className="px-20 mt-10 text-gray-300">
+      <section className="px-5 md:px-20 mt-10 text-gray-300">
         <h4 className="mb-8 text-3xl font-bold text-center md:text-left bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Contact me</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* 左侧：联系方式列表 */}
