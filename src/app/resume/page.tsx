@@ -241,8 +241,8 @@ export default function Page() {
       </div>
 
       {/* 底部文字 */}
-      <div className=" p-8 text-gray-500 text-sm  flex items-center justify-center h-3">
-        <p>© 2026 resume of Xuleijun, by&nbsp;&nbsp;&nbsp;</p>
+      <div className=" p-8 text-gray-500 text-sm gap-1 flex flex-col md:flex-row items-center justify-center md:h-3 ">
+        <p>© 2026 resume of Xuleijun, by</p>
         <DevIcons />
       </div>
     </div>
