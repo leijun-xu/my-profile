@@ -8,7 +8,8 @@ export async function proxy(req: NextRequest) {
         pathname.startsWith('/auth/') ||
         pathname.startsWith('/sso-callback') ||
         pathname === '/health' ||
-        pathname === '/resume'
+        pathname === '/resume' ||
+        pathname === '/resume.pdf'
 
     if (isPublicRoute) {
         return NextResponse.next()
