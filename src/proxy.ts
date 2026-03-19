@@ -9,7 +9,7 @@ export async function proxy(req: NextRequest) {
         pathname.startsWith('/sso-callback') ||
         pathname === '/health' ||
         pathname === '/resume' ||
-        pathname === '/resume.pdf'
+        pathname === '/xuleijun-Frontend-resume.pdf'
 
     if (isPublicRoute) {
         return NextResponse.next()
