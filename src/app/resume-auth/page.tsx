@@ -209,7 +209,7 @@ export default function Page() {
           // { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
           // { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
           { icon: Mail, href: 'mailto:765285102@qq.com', label: 'Email', tooltip: 'This is my email,you can contact me.' },
-          { icon: FileUser, href: './resume.pdf', label: 'Resume', download: true, tooltip: 'This is my PDF resume,you can download it.' },
+          { icon: FileUser, href: './xuleijun-Frontend-resume.pdf', label: 'Resume', download: true, tooltip: 'This is my PDF resume,you can download it.' },
 
         ].map((social, index) => (
           <TooltipProvider key={index}>
