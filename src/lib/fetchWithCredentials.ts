@@ -7,7 +7,7 @@ type FetchOptions = RequestInit & {};
 
 const serverName = '/api/serve';
 
-export async function fetchWithCredentials(url: string, options: FetchOptions) {
+export async function fetchWithCredentials(url: string, options: FetchOptions = {}) {
     const BACKEND_API_URL = process.env.BACKEND_API_URL || ""
 
     const session = await getServerSession(authOptions);

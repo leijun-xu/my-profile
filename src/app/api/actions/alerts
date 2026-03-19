@@ -1,0 +1,15 @@
+
+
+import { createBackendClient } from "@/lib/api-client";
+
+const backendClient = createBackendClient(process.env.BACKEND_API_URL || "")
+
+export async function getActiveAlerts() {
+    try {
+        const data = await backendClient.get('/api/serve/api/external/alerts/active')
+        return data;
+    } catch (error) {
+        throw new Error('Failed to fetch active alerts: ' + (error instanceof Error ? error.message : String(error)));
+    }
+
+}
