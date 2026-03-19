@@ -1,6 +1,7 @@
 import { createDeepSeek } from "@ai-sdk/deepseek";
 import type { NextRequest } from "next/server";
 import { streamText, convertToModelMessages } from "ai";
+import { systemPrompt } from "./prompt";
 
 const apiKey = process.env.DEEPSEEK_API_KEY
 const deepseek = createDeepSeek({
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
     const result = streamText({
         model: deepseek('deepseek-chat'),
         messages: await convertToModelMessages(messages),
-        system: '你是一个资深前端开发者，按照你的专业给与用户帮助',
+        system: systemPrompt,
     })
     return result.toUIMessageStreamResponse()
 }
