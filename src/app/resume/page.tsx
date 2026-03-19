@@ -1,8 +1,9 @@
 'use client';
 
-import { Github, Mail, PhoneCall, MapPin, FileUser } from 'lucide-react';
+import { Github, Mail, PhoneCall, MapPin, FileUser,LogIn } from 'lucide-react';
 import Skills from "@/components/resume/skill";
 import AIChat from "@/components/ai/ai-chat";
+import Link  from "next/link";
 import { Typewriter } from "@/components/resume/typeWriter";
 import {
   Tooltip,
@@ -20,7 +21,7 @@ export default function Page() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
       <header>
         <nav className="w-full">
-          <div className="flex justify-start w-full px-16 py-8">
+          <div className="flex justify-between w-full px-16 py-8">
             <div className=" flex items-center gap-2">
               <Avatar size="lg">
                 <AvatarImage
@@ -31,6 +32,10 @@ export default function Page() {
               </Avatar>
               <span className="text-gray-300 text-md">徐磊君</span>
             </div>
+            
+              <Link href="/auth/signin" className="ml-10 text-gray-300 hover:text-white transition-colors duration-300">
+                <LogIn className=" w-7 h-7" />
+              </Link>
           </div>
         </nav>
       </header>
