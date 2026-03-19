@@ -34,6 +34,36 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    Credentials({
+      id: 'sso',
+      name: 'SSO',
+      credentials: {
+        tempCode: { label: 'TempCode', type: 'text' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.tempCode) {
+          return null;
+        }
+
+        try {
+          // 这里应该调用SSO登录的后端接口，使用tempCode换取用户信息和requestToken
+          // 下面是一个模拟的示例，实际情况请根据你的SSO登录接口进行调整
+          // const tempCode = credentials.tempCode;
+          // 模拟调用SSO接口
+          // const response = await fetch('/api/sso/login', {
+          //   method: 'POST',
+          //   headers: { 'Content-Type': 'application/json' },
+          //   body: JSON.stringify({ tempCode,redirectUri: process.env.NEXTAUTH_URL + '/sso-callback' })
+          // });
+          // const userData = await response.json();
+          // return userData;
+
+          return null;
+        } catch (error) {
+          return null
+        }
+      },
+    }),
   ],
   pages: {
     signIn: process.env.BASE_PATH + '/auth/signin',

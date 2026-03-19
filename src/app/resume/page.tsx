@@ -1,9 +1,9 @@
 'use client';
 
-import { Github, Mail, PhoneCall, MapPin, FileUser,LogIn } from 'lucide-react';
+import { Github, Mail, PhoneCall, MapPin, FileUser, LogIn } from 'lucide-react';
 import Skills from "@/components/resume/skill";
 import AIChat from "@/components/ai/ai-chat";
-import Link  from "next/link";
+import Link from "next/link";
 import { Typewriter } from "@/components/resume/typeWriter";
 import {
   Tooltip,
@@ -32,10 +32,10 @@ export default function Page() {
               </Avatar>
               <span className="text-gray-300 text-md">徐磊君</span>
             </div>
-            
-              <Link href="/auth/signin" className="ml-10 text-gray-300 hover:text-white transition-colors duration-300">
-                <LogIn className=" w-7 h-7" />
-              </Link>
+
+            <Link href="/auth/signin" className="ml-10 text-gray-300 hover:text-white transition-colors duration-300">
+              <LogIn className=" w-7 h-7" />
+            </Link>
           </div>
         </nav>
       </header>
@@ -170,7 +170,7 @@ export default function Page() {
       {/* 社交链接 */}
       <div className="flex justify-center gap-6 mt-12">
         {[
-          { icon: Github, href: 'https://github.com/leijun-xu/my-profile', label: 'GitHub', tooltip: 'Go to github to review code.' },
+          // { icon: Github, href: 'https://github.com/leijun-xu/my-profile', label: 'GitHub', tooltip: 'Go to github to review code.' },
           // { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
           // { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
           { icon: Mail, href: 'mailto:765285102@qq.com', label: 'Email', tooltip: 'This is my email,you can contact me.' },
