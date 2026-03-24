@@ -1,13 +1,12 @@
 import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
+import { fetchWithCredentials } from "@/lib/fetchWithCredentials";
 
 const credentialsSchema = z.object({
-  email: z.string().email(),
+  email: z.string().min(1),
   password: z.string().min(6),
-  firstName: z.string().min(1).max(6),
-  lastName: z.string().min(1).max(6)
-})
+});
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -18,19 +17,37 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
-        firstName: { label: 'FirstName', type: 'text' },
-        lastName: { label: 'LastName', type: 'text' },
       },
       async authorize(credentials) {
         try {
-          const requestToken: string = Date.now() + '';
-          const { email, password, firstName, lastName } = credentialsSchema.parse(credentials);
-          if (email && firstName && lastName && password) {
-            return { id: email, name: firstName + ' ' + lastName, email, firstName, lastName, requestToken }
+          const parsed = credentialsSchema.parse(credentials);
+
+          const res = await fetchWithCredentials(`/login`, {
+            method: 'POST',
+            body: JSON.stringify(parsed),
+            noToken: true // 登录接口不需要携带token
+          })
+          if (!res.ok) {
+            return null;
           }
-          return null;
+
+          const data = await res.json();
+          console.log("Login response data:", data);
+
+          const { id, firstName, lastName, email } = data?.user || {};
+          const requestToken: string = data?.requestToken || '';
+          const expiresIn: number = data?.expiresIn || 0;
+          return {
+            id,
+            email,
+            firstName,
+            lastName,
+            requestToken,
+            expiresIn
+          };
         } catch (error) {
-          return null
+          console.error('[next-auth][signin] authorize error:', error);
+          return null;
         }
       },
     }),
@@ -91,6 +108,7 @@ export const authOptions: NextAuthOptions = {
         console.warn('JWT token has expired!')
         // return null or a minimal token to force re-auth
       }
+
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -102,6 +120,7 @@ export const authOptions: NextAuthOptions = {
           token.exp = Math.floor(Date.now() / 1000 + Number(user.expiresIn))
         }
       }
+
       return token;
     },
     session({ session, token }) {
@@ -112,7 +131,7 @@ export const authOptions: NextAuthOptions = {
           email: token.email as string,
           firstName: token.firstName as string,
           lastName: token.lastName as string,
-          name: token.firstName + ' ' + token.lastName
+          name: token.firstName + ' ' + token.lastName,
         };
         if (token.exp) {
           session.expires = new Date(token.exp * 1000).toISOString();

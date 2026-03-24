@@ -7,6 +7,7 @@ import { base_path } from "@/lib/const";
 import { signOut, useSession } from "next-auth/react";
 import AIChat from "@/components/ai/ai-chat";
 import { Typewriter } from "@/components/resume/typeWriter";
+import Link from "next/link";
 import {
   Tooltip,
   TooltipContent,
@@ -62,10 +63,12 @@ export default function Page() {
                   </Link>
                 </li> */}
               <li>
-                <div className="flex items-center gap-1 cursor-pointer">
-                  <div className="rounded-lg bg-blue-500 text-white border-2 border-white w-8 h-8 flex justify-center items-center">{session?.user?.firstName?.substr(0, 1)}</div>
-                  <div className="text-gray-300 ">{status === 'loading' ? <Loader className="w-6 h-6" /> : session?.user?.name}</div>
-                </div>
+                <Link href="/profile/settings">
+                  <div className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity">
+                    <div className="rounded-lg bg-blue-500 text-white border-2 border-white w-8 h-8 flex justify-center items-center">{session?.user?.firstName?.substr(0, 1)}</div>
+                    <div className="text-gray-300 ">{status === 'loading' ? <Loader className="w-6 h-6" /> : session?.user?.name}</div>
+                  </div>
+                </Link>
               </li>
               <li>
                 <Button onClick={e => signOut({ callbackUrl: base_path + '/auth/signin' })}><LogOut className=" w-7 h-7" /></Button>

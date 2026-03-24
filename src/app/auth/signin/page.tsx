@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SignInForm } from "@/components/auth/signin-form";
 import DevIcons from "@/components/devtool/devtoolIcon";
 
@@ -18,6 +19,9 @@ export default function SiginInPage() {
                                 <div className="text-center mb-10">
                                     <h1 className="font-bold text-3xl text-gray-900 uppercase">sign in</h1>
                                     <p>Welcome to view my Resume</p>
+                                    <p className="mt-2 text-sm text-gray-600">
+                                        No account yet? <Link href="/auth/register" className="text-blue-600 hover:underline">Register</Link>
+                                    </p>
                                 </div>
                                 <div>
                                     <SignInForm />

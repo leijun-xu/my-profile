@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
-    const res = await fetchWithCredentials('/api/external/cases?' + searchParams.toString())
+    const res = await fetchWithCredentials('/users?' + searchParams.toString())
 
     const data = await res.json()
     if (data.error) {

@@ -11,6 +11,7 @@ const deepseek = createDeepSeek({
 export async function POST(req: NextRequest) {
     const { messages } = await req.json()
     const result = streamText({
+        // model: deepseek('deepseek-reasoner'),
         model: deepseek('deepseek-chat'),
         messages: await convertToModelMessages(messages),
         system: systemPrompt,
