@@ -8,9 +8,10 @@ const skillsData = [
     { name: 'Next.js', level: 88, category: 'frontend', color: '#F24E1E' },
     { name: 'Shadcn', level: 90, category: 'ui', color: '#F05032' },
     { name: 'TypeScript', level: 90, category: 'frontend', color: '#3178C6' },
-    { name: 'Node.js', level: 75, category: 'backend', color: '#339933' },
+    { name: 'Node.js', level: 85, category: 'backend', color: '#339933' },
     { name: 'Vue', level: 80, category: 'frontend', color: '#42B883' },
     { name: 'Webpack', level: 75, category: 'tools', color: '#8DD6F9' },
+    { name: 'MySql', level: 75, category: 'database', color: '#F29E39' },
 ];
 
 export default function SkillsDemo() {
