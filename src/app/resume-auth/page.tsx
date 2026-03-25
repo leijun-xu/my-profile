@@ -206,7 +206,7 @@ export default function Page() {
 
       </section>
       {/* 社交链接 */}
-      <div className="flex justify-center gap-6 mt-12">
+      <div className="flex justify-center gap-6 mt-12 mb-5">
         {[
           { icon: Github, href: 'https://github.com/leijun-xu/my-profile', label: 'GitHub', tooltip: 'Go to github to review code.' },
           // { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
@@ -241,12 +241,6 @@ export default function Page() {
           </TooltipProvider>
 
         ))}
-      </div>
-
-      {/* 底部文字 */}
-      <div className=" p-8 text-gray-500 text-sm gap-1 flex flex-col md:flex-row items-center justify-center md:h-3 ">
-        <p>© 2026 resume of Xuleijun, by</p>
-        <DevIcons />
       </div>
     </div>
   )
