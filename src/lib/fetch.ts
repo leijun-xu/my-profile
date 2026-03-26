@@ -13,7 +13,7 @@ export default async function fetchFun(url: string, config?: any) {
     }
 
     if (data.error) {
-        toast.error(data.error.message || 'Request Failure')
+        toast.error(data.error || 'Request Failure')
         const { status } = data;
         if (status === 403) {
             signOut({ callbackUrl: base_path + '/auth/signin?error=403' })

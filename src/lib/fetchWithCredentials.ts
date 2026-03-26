@@ -28,17 +28,20 @@ export async function fetchWithCredentials(url: string, options: FetchOptions = 
         headers.set('Authorization', `Bearer ${requestToken}`)
     }
     const res = await fetch(BACKEND_API_URL + serverName + url, { ...options, headers })
-    if (!res.ok) {
-        // const errorText = await res.text().catch(() => '')
-        return NextResponse.json({
-            error: res.statusText || 'HTTP error',
-            status: res.status
-        }, {
-            status: res.status
-        })
-    }
+    // if (!res.ok) {
+    //     console.log("接收到数据，", res);
+    //     // const errorText = await res.text().catch(() => '')
+    //     return NextResponse.json({
+    //         error: res.statusText || 'HTTP error',
+    //         status: res.status
+    //     }, {
+    //         status: res.status
+    //     })
+    // }
 
     const data = await res.json();
+    console.log("接收到数据，", data);
+
     // success code
     if (String(data.code).startsWith('20')) {
         return NextResponse.json({ ...data.data || {} }, { status: 200 })

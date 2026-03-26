@@ -18,6 +18,14 @@ export const registerSchema = z.object({
         .max(6, "can input 1-6 characters only"),
     email: z.string().email("Invalid email address"),
     password: z.string().regex(/^[a-zA-Z0-9]{6,8}$/, "Password must be 6-8 letters or numbers"),
+    confirmPassword: z.string().regex(/^[a-zA-Z0-9]{6,8}$/, "Password must be 6-8 letters or numbers"),
+    captchaCode: z
+        .string()
+        .length(4, "Captcha must be 4 characters")
+        .regex(/^[a-zA-Z0-9]{4}$/, "Captcha invalid"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords must match",
+    path: ["confirmPassword"],
 });
 
 export type SignInFormData = z.infer<typeof signInSchema>;

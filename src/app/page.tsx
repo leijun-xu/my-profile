@@ -25,7 +25,7 @@ export default function Page() {
       <div className="absolute w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
       <div className="absolute w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-700" />
       {/* 主要内容 */}
-      <div className="relative text-center space-y-6">
+      <div className="relative text-center space-y-6 h-screen flex flex-col items-center justify-center">
         {/* 简历图标 */}
         <div className="relative">
           <div className="w-24 h-24 mx-auto bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 flex items-center justify-center">
