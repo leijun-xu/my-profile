@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { fetchWithCredentials } from "@/lib/fetchWithCredentials";
+import {  NextResponse } from "next/server";
 
 const credentialsSchema = z.object({
   email: z.string().min(1),
@@ -31,7 +32,7 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const data = await (res as NextResponse).json();
+          const {data} = await (res as NextResponse).json();
           console.log("Login response data:", data);
 
           const { id, firstName, lastName, email } = data?.user || {};

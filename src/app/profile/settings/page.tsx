@@ -20,9 +20,9 @@ export default function ProfileSettingsPage() {
             const data = await fetchFun("/api/profile");
             if (!data.error) {
                 setProfileData({
-                    firstName: data.firstName || "",
-                    lastName: data.lastName || "",
-                    email: data.email || ""
+                    firstName: data.data.firstName || "",
+                    lastName: data.data.lastName || "",
+                    email: data.data.email || ""
                 });
             } else {
                 setMessage(data.error || "Failed to fetch profile");
