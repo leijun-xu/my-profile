@@ -3,15 +3,19 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/auth";
 import { getRequestTokenForRoute } from "@/lib/auth-server";
 
-type FetchOptions = RequestInit & { noToken?: boolean };
-
+type FetchOptions = RequestInit & {
+    noToken?: boolean,
+    isFormDataWithFile?: boolean
+};
 const serverName = '/api';
 
 export async function fetchWithCredentials(url: string, options: FetchOptions = {}) {
     const BACKEND_API_URL = process.env.BACKEND_API_URL || ""
     const headers = new Headers(options.headers || {})
-    headers.set('accept', "*/*")
-    headers.set('Content-type', 'application/json')
+    headers.set('accept', "*/*");
+    if (!options.isFormDataWithFile) {
+    headers.set('Content-type', 'application/json');
+    }
     if (!options.noToken) {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -27,6 +31,7 @@ export async function fetchWithCredentials(url: string, options: FetchOptions = 
 
         headers.set('Authorization', `Bearer ${requestToken}`)
     }
+    
     const res = await fetch(BACKEND_API_URL + serverName + url, { ...options, headers })
     // if (!res.ok) {
     //     console.log("接收到数据，", res);

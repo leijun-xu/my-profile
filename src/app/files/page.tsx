@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import fetchFun from "@/lib/fetch";
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
 
@@ -59,8 +60,7 @@ export default function FilesPage() {
   // 检查文件是否存在（秒传）
   const checkFileExists = async (md5: string, fileName: string, fileSize: number): Promise<boolean> => {
     try {
-      const response = await fetch(`/api/file/verify?md5=${md5}&fileName=${encodeURIComponent(fileName)}&fileSize=${fileSize}`);
-      const data = await response.json();
+      const data = await fetchFun(`/api/file/verify?md5=${md5}&fileName=${encodeURIComponent(fileName)}&fileSize=${fileSize}`);
       return data.exists || false;
     } catch (error) {
       console.error("Failed to check file existence:", error);
@@ -71,8 +71,7 @@ export default function FilesPage() {
   // 检查分片上传状态（断点续传）
   const checkChunkStatus = async (fileId: string): Promise<number[]> => {
     try {
-      const response = await fetch(`/api/file/check?fileId=${fileId}`);
-      const data = await response.json();
+      const data = await fetchFun(`/api/file/check?fileId=${fileId}`);
       return data.uploadedChunks || [];
     } catch (error) {
       console.error("Failed to check chunk status:", error);
@@ -103,7 +102,7 @@ export default function FilesPage() {
     formData.append("fileSize", fileSize.toString());
 
     const startTime = Date.now();
-    const response = await fetch("/api/file/upload", {
+    const response = await fetchFun("/api/file/upload", {
       method: "POST",
       body: formData,
     });
@@ -113,32 +112,36 @@ export default function FilesPage() {
     const speed = ((chunk.size / 1024 / 1024) / duration).toFixed(2);
     onProgress((chunkIndex + 1) / totalChunks * 100, `${speed} MB/s`);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Upload failed");
+    if (response.error) {
+      // const errorData = await response.json();
+      throw new Error(response.error || "Upload failed");
     }
   };
 
   // 合并分片
   const mergeChunks = async (fileId: string): Promise<void> => {
-    const response = await fetch("/api/file/merge", {
+    const data = await fetchFun("/api/file/merge", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fileId }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Merge failed");
+    if (data.error) {
+      // const errorData = await response.json();
+      throw new Error(data.error || "Merge failed");
     }
   };
 
   // 取消上传
   const cancelUpload = async (fileId: string): Promise<void> => {
     try {
-      await fetch(`/api/file/cancel?fileId=${fileId}`, {
+      const data = await fetchFun(`/api/file/cancel?fileId=${fileId}`, {
         method: "DELETE",
       });
+      if (data.error) {
+        throw new Error(data.error || "Cancel failed");
+      }
+
     } catch (error) {
       console.error("Failed to cancel upload:", error);
     }
@@ -236,8 +239,8 @@ export default function FilesPage() {
         );
       }
 
-      // 合并分片
-      await mergeChunks(fileId);
+      // 合并分片 后端处理了
+      // await mergeChunks(fileId);
 
       setUploadFiles(prev =>
         prev.map(f =>
