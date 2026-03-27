@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
     const res = await fetchWithCredentials(`/profile`)
-    const data = await res.json()
+    const data = await (res as NextResponse).json()
     if (data.error) {
         return NextResponse.json({ error: data.error, status: data.status || 500 })
     } else {
@@ -19,7 +19,7 @@ export async function PUT(req: NextRequest) {
         method: 'PUT',
         body: JSON.stringify(payload),
     })
-    const data = await res.json()
+    const data = await (res as NextResponse).json()
     if (data.error) {
         return NextResponse.json({ error: data.error, status: data.status || 500 })
     } else {

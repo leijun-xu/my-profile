@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/users/[id]">
     const { id } = await ctx.params;
     const searchParams = req.nextUrl.searchParams;
     const res = await fetchWithCredentials(`/users/${id}?${searchParams.toString()}`)
-    const data = await res.json()
+    const data = await (res as NextResponse).json()
     if (data.error) {
         return NextResponse.json({ error: data.error, status: data.status || 500 })
     } else {
@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext<"/api/users/[id]">
         method: 'PUT',
         body: JSON.stringify(payload)
     })
-    const data = await res.json()
+    const data = await (res as NextResponse).json()
     if (data.error) {
         return NextResponse.json({ error: data.error, status: data.status || 500 })
     } else {
@@ -37,7 +37,7 @@ export async function DELETE(req: NextRequest, ctx: RouteContext<"/api/users/[id
     const res = await fetchWithCredentials(`/users/${id}`, {
         method: 'DELETE',
     })
-    const data = await res.json()
+    const data = await (res as NextResponse).json()
     if (data.error) {
         return NextResponse.json({ error: data.error, status: data.status || 500 })
     } else {

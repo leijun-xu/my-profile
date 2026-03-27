@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,10 +20,20 @@ interface UploadFile {
   speed?: string;
 }
 
+interface ServerFile {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  uploadTime: string;
+}
+
 export default function FilesPage() {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pausedUploadIdsRef = useRef<Set<string>>(new Set());
+  const [serverFiles, setServerFiles] = useState<ServerFile[]>([]);
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
 
   // 计算文件MD5
   const calculateMD5 = async (file: File): Promise<string> => {
@@ -122,7 +132,6 @@ export default function FilesPage() {
   const mergeChunks = async (fileId: string): Promise<void> => {
     const data = await fetchFun("/api/file/merge", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fileId }),
     });
 
@@ -132,7 +141,7 @@ export default function FilesPage() {
     }
   };
 
-  // 取消上传
+  // 取消上传 删除服务器的chunk 文件
   const cancelUpload = async (fileId: string): Promise<void> => {
     try {
       const data = await fetchFun(`/api/file/cancel?fileId=${fileId}`, {
@@ -147,8 +156,58 @@ export default function FilesPage() {
     }
   };
 
+  // 获取服务器文件列表
+  const fetchServerFiles = async () => {
+    setIsLoadingFiles(true);
+    try {
+      const data = await fetchFun("/api/file/list");
+      if (!data.error) {
+        console.log('data',data);
+        
+        setServerFiles(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch files:", error);
+    } finally {
+      setIsLoadingFiles(false);
+    }
+  };
+
+  // 下载文件
+  const downloadFile = async (id: string) => {
+    const blob = await fetchFun('/api/file/' + id, {responseType:'blob'});
+    const downloadUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = downloadUrl
+    a.download = id
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(downloadUrl)  
+  };
+
+  // 删除文件
+  const deleteFile = async (id: string) => {
+    if (!confirm("确定要删除这个文件吗？")) return;
+
+      const data = await fetchFun(`/api/file/${id}`, {
+        method: "DELETE",
+      });
+    if (!data.error) {
+      fetchServerFiles();
+    } 
+  };
+
+  // 页面加载时获取文件列表
+  useEffect(() => {
+    fetchServerFiles();
+  }, []);
+
   // 开始上传文件
   const startUpload = async (uploadFile: UploadFile): Promise<void> => {
+    // 清除可能的暂停标记
+    pausedUploadIdsRef.current.delete(uploadFile.id);
+
     setUploadFiles(prev =>
       prev.map(f =>
         f.id === uploadFile.id ? { ...f, status: "uploading" } : f
@@ -196,6 +255,11 @@ export default function FilesPage() {
 
       // 上传剩余的分片
       for (let i = 0; i < totalChunks; i++) {
+        // 检查暂停状态
+        if (pausedUploadIdsRef.current.has(uploadFile.id)) {
+          pausedUploadIdsRef.current.delete(uploadFile.id); // 清除暂停标记
+          break;
+        }
         if (uploadedChunkSet.has(i)) continue;
 
         setUploadFiles(prev =>
@@ -238,10 +302,16 @@ export default function FilesPage() {
           )
         );
       }
-
+      const currentFileStatus = uploadFiles.find(f=>f.id===uploadFile.id)?.status
+      if (currentFileStatus === 'paused') { 
+        return;
+      }
       // 合并分片 后端处理了
-      // await mergeChunks(fileId);
-
+      const res = await fetchFun("/api/file/merge", {
+      method: "POST",
+      body: JSON.stringify({ fileId }),
+    });
+      if (!res.error) {
       setUploadFiles(prev =>
         prev.map(f =>
           f.id === uploadFile.id
@@ -249,6 +319,14 @@ export default function FilesPage() {
             : f
         )
       );
+        
+      // 上传完成后刷新文件列表
+        fetchServerFiles().then(() => { 
+              setUploadFiles(prev => prev.filter(f => f.id !== uploadFile.id));
+        });
+      }
+    
+
     } catch (error) {
       console.error("Upload error:", error);
       setUploadFiles(prev =>
@@ -284,6 +362,7 @@ export default function FilesPage() {
       };
 
       setUploadFiles(prev => [...prev, newUploadFile]);
+      startUpload(newUploadFile)
     }
   };
 
@@ -304,19 +383,20 @@ export default function FilesPage() {
     handleFiles(e.dataTransfer.files);
   };
 
-  // 删除文件
-  const removeFile = async (id: string) => {
-    const file = uploadFiles.find(f => f.id === id);
-    if (file && (file.status === "uploading" || file.status === "paused")) {
-      await cancelUpload(id);
-    }
-    setUploadFiles(prev => prev.filter(f => f.id !== id));
+  // 取消文件，会删除远程的chunk文件
+  const cancelFile = async (fid:string) => {
+    const file = uploadFiles.find(f => f.id === fid)!;
+    if ((file.status === "uploading" || file.status === "paused")) {
+      await cancelUpload(file.id);
+    } 
+    setUploadFiles(prev => prev.filter(f => f.id !== fid));
   };
 
   // 重试上传
   const retryUpload = (id: string) => {
     const file = uploadFiles.find(f => f.id === id);
     if (file) {
+      pausedUploadIdsRef.current.delete(id); // 清除暂停标记
       setUploadFiles(prev =>
         prev.map(f =>
           f.id === id
@@ -330,6 +410,7 @@ export default function FilesPage() {
 
   // 暂停上传
   const pauseUpload = (id: string) => {
+    pausedUploadIdsRef.current.add(id);
     setUploadFiles(prev =>
       prev.map(f => (f.id === id ? { ...f, status: "paused" } : f))
     );
@@ -470,9 +551,9 @@ export default function FilesPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => removeFile(uploadFile.id)}
+                            onClick={() => cancelFile(uploadFile.id)}
                           >
-                            删除
+                            取消
                           </Button>
                         </div>
                       </div>
@@ -503,6 +584,71 @@ export default function FilesPage() {
               ))}
             </div>
           )}
+
+          {/* 服务器文件列表 */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">服务器文件</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={fetchServerFiles}
+                disabled={isLoadingFiles}
+              >
+                {isLoadingFiles ? "加载中..." : "刷新"}
+              </Button>
+            </div>
+            {serverFiles.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                暂无文件
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {serverFiles.map((file) => (
+                  <Card key={file.fileName}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm">
+                              📄
+                            </div>
+                            <span className="text-sm font-medium truncate flex-1">
+                              {file.fileName}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-gray-500 ml-10">
+                            <Badge variant="secondary">
+                              {formatFileSize(file.fileSize)}
+                            </Badge>
+                            <span>
+                              {new Date(file.uploadTime).toLocaleString("zh-CN")}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 ml-4">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => downloadFile(file.fileName)}
+                          >
+                            下载
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => deleteFile(file.fileName)}
+                          >
+                            删除
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

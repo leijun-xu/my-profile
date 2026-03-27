@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify(payload),
         noToken: true // 登录接口不需要携带token
     })
-    const data = await res.json()
+    const data = await (res as NextResponse).json()
     if (data.error) {
         return NextResponse.json({ error: data.error, status: data.status || 500 })
     } else {

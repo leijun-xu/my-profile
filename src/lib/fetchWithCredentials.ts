@@ -5,7 +5,8 @@ import { getRequestTokenForRoute } from "@/lib/auth-server";
 
 type FetchOptions = RequestInit & {
     noToken?: boolean,
-    isFormDataWithFile?: boolean
+    isFormDataWithFile?: boolean,
+    responseType?:string
 };
 const serverName = '/api';
 
@@ -44,12 +45,15 @@ export async function fetchWithCredentials(url: string, options: FetchOptions = 
     //     })
     // }
 
-    const data = await res.json();
+    const data = options.responseType==='blob'?await res.blob(): await res.json();
     console.log("接收到数据，", data);
 
+    if (options.responseType==='blob'&&data instanceof Blob) {
+        return data
+    }
     // success code
     if (String(data.code).startsWith('20')) {
-        return NextResponse.json({ ...data.data || {} }, { status: 200 })
+        return NextResponse.json({ ...data || {} }, { status: 200 })
     } else {
         return NextResponse.json({
             error: data.message || 'Backend error',

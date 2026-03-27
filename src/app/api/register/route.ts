@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify(rest),
         noToken: true // 注册接口不需要携带token
     });
-    const data = await res.json();
+    const data = await (res as NextResponse).json();
     if (data.error) {
         return NextResponse.json({ error: data.error, status: data.status || 500 });
     } else {

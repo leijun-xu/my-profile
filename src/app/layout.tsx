@@ -20,16 +20,21 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <div className="w-full overflow-x-hidden min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ">
-          <Providers>
-            {children}
-          </Providers>
-          <Toaster position="top-center" />
+        <div className="w-full overflow-x-hidden min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ">
+          <div className="flex-1">
+            <Providers>
+              {children}
+            </Providers>
+          </div>
+            
           {/* 底部文字 */}
           <div className=" p-8 text-gray-500 text-sm gap-1 flex flex-col md:flex-row items-center justify-center md:h-3 bg-white/80">
             <p>© 2026 developed by Xuleijun, use</p>
             <DevIcons />
           </div>
+
+        
+          <Toaster position="top-center" />
         </div>
       </body>
     </html>

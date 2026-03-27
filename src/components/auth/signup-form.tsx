@@ -29,7 +29,7 @@ function RegisterFormCom() {
         try {
             const res = await fetch("/api/captcha");
             if (!res.ok) throw new Error("Captcha load failed");
-            const data = await res.json();
+            const data = await (res as NextResponse).json();
             setCaptchaId(data.captchaId);
             setCaptchaSrc(data.captcha);
         } catch (err) {

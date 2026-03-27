@@ -31,7 +31,7 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const data = await res.json();
+          const data = await (res as NextResponse).json();
           console.log("Login response data:", data);
 
           const { id, firstName, lastName, email } = data?.user || {};
