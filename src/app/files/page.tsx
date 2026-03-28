@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import fetchFun from "@/lib/fetch"
+import ServerFilesList from "@/components/files/serverFilesList"
 
 const CHUNK_SIZE = 5 * 1024 * 1024 // 5MB per chunk
 
@@ -34,7 +35,6 @@ export default function FilesPage() {
   const pausedUploadIdsRef = useRef<Set<string>>(new Set())
   const [serverFiles, setServerFiles] = useState<ServerFile[]>([])
   const [isLoadingFiles, setIsLoadingFiles] = useState(false)
-  const [isDownloading, setIsDownloading] = useState(false)
 
   // 计算文件MD5
   const calculateMD5 = async (file: File): Promise<string> => {
@@ -164,21 +164,6 @@ export default function FilesPage() {
     } finally {
       setIsLoadingFiles(false)
     }
-  }
-
-  // 下载文件
-  const downloadFile = async (id: string) => {
-    setIsDownloading(true)
-    const blob = await fetchFun("/api/file/" + id, { responseType: "blob" })
-    const downloadUrl = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = downloadUrl
-    a.download = id
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(downloadUrl)
-    setIsDownloading(false)
   }
 
   // 删除文件
@@ -575,70 +560,12 @@ export default function FilesPage() {
           )}
 
           {/* 服务器文件列表 */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">服务器文件</h3>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={fetchServerFiles}
-                disabled={isLoadingFiles}
-              >
-                {isLoadingFiles ? "加载中..." : "刷新"}
-              </Button>
-            </div>
-            {serverFiles.length === 0 ? (
-              <div className="py-8 text-center text-gray-500">暂无文件</div>
-            ) : (
-              <div className="space-y-3">
-                {serverFiles.map((file) => (
-                  <Card key={file.fileName}>
-                    <CardContent className="pt-4">
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0 flex-1">
-                          <div className="mb-1 flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-500 to-purple-500 text-sm text-white">
-                              📄
-                            </div>
-                            <span className="flex-1 truncate text-sm font-medium">
-                              {file.fileName}
-                            </span>
-                          </div>
-                          <div className="ml-10 flex items-center gap-3 text-xs text-gray-500">
-                            <Badge variant="secondary">
-                              {formatFileSize(file.fileSize)}
-                            </Badge>
-                            <span>
-                              {new Date(file.uploadTime).toLocaleString(
-                                "zh-CN"
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="ml-4 flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={isDownloading}
-                            onClick={() => downloadFile(file.fileName)}
-                          >
-                            {isDownloading ? "下载中..." : "下载"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => deleteFile(file.fileName)}
-                          >
-                            删除
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
+          <ServerFilesList
+            serverFiles={serverFiles}
+            isLoadingFiles={isLoadingFiles}
+            onRefresh={fetchServerFiles}
+            onDelete={deleteFile}
+          />
         </CardContent>
       </Card>
     </div>
