@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react"
 import DevIcons from "@/components/devtool/devtoolIcon"
+import AIChat from "@/components/ai/ai-chat"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -35,6 +36,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      <AIChat />
       {/* 移动端遮罩 */}
       {sidebarOpen && (
         <div

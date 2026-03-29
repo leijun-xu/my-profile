@@ -2,7 +2,6 @@
 
 import { Github, Mail, PhoneCall, MapPin, FileUser } from "lucide-react"
 import Skills from "@/components/resume/skill"
-import AIChat from "@/components/ai/ai-chat"
 import { Typewriter } from "@/components/resume/typeWriter"
 import {
   Tooltip,
@@ -10,14 +9,11 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { summary } from "@/lib/const"
 
 export default function ResumeContent() {
   return (
     <div className="relative min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
-      <AIChat />
-
       <hr className="mx-44 border-gray-400" />
       <section className="mt-10 px-5 text-gray-300 md:px-20">
         <h4 className="mb-8 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-center text-3xl font-bold text-transparent md:text-left">
@@ -166,7 +162,7 @@ export default function ResumeContent() {
         </div>
       </section>
       {/* 社交链接 */}
-      <div className="mt-12 mb-5 flex justify-center gap-6">
+      <div className="mt-12 flex justify-center gap-6 pb-5">
         {[
           {
             icon: Github,
