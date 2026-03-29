@@ -1,66 +1,66 @@
-import { NextAuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { z } from "zod";
-import { fetchWithCredentials } from "@/lib/fetchWithCredentials";
-import {  NextResponse } from "next/server";
+import { NextAuthOptions } from "next-auth"
+import Credentials from "next-auth/providers/credentials"
+import { z } from "zod"
+import { fetchWithCredentials } from "@/lib/fetchWithCredentials"
+import { NextResponse } from "next/server"
 
 const credentialsSchema = z.object({
   email: z.string().min(1),
   password: z.string().min(6),
-});
+})
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
-      id: 'signin-credential',
-      name: 'SigninCredential',
+      id: "signin-credential",
+      name: "SigninCredential",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         try {
-          const parsed = credentialsSchema.parse(credentials);
+          const parsed = credentialsSchema.parse(credentials)
 
           const res = await fetchWithCredentials(`/login`, {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify(parsed),
-            noToken: true // 登录接口不需要携带token
+            noToken: true, // 登录接口不需要携带token
           })
-          if (!res.ok) {
-            return null;
+          if (!(res as NextResponse).ok) {
+            return null
           }
 
-          const {data} = await (res as NextResponse).json();
-          console.log("Login response data:", data);
+          const { data } = await (res as NextResponse).json()
+          console.log("Login response data:", data)
 
-          const { id, firstName, lastName, email } = data?.user || {};
-          const requestToken: string = data?.requestToken || '';
-          const expiresIn: number = data?.expiresIn || 0;
+          const { id, firstName, lastName, email } = data?.user || {}
+          const requestToken: string = data?.requestToken || ""
+          const expiresIn: number = data?.expiresIn || 0
           return {
             id,
             email,
             firstName,
             lastName,
             requestToken,
-            expiresIn
-          };
+            expiresIn,
+          }
         } catch (error) {
-          console.error('[next-auth][signin] authorize error:', error);
-          return null;
+          console.error("[next-auth][signin] authorize error:", error)
+          return null
         }
       },
     }),
     Credentials({
-      id: 'sso',
-      name: 'SSO',
+      id: "sso",
+      name: "SSO",
       credentials: {
-        tempCode: { label: 'TempCode', type: 'text' },
+        tempCode: { label: "TempCode", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.tempCode) {
-          return null;
+          return null
         }
 
         try {
@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
           // const userData = await response.json();
           // return userData;
 
-          return null;
+          return null
         } catch (error) {
           return null
         }
@@ -84,45 +84,48 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: process.env.BASE_PATH + '/auth/signin',
+    signIn: process.env.BASE_PATH + "/auth/signin",
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 8 * 60 * 60, // 8 hours
   },
-  useSecureCookies: process.env.NODE_ENV === 'production',
-  debug: process.env.NODE_ENV === 'development',
+  useSecureCookies: process.env.NODE_ENV === "production",
+  debug: process.env.NODE_ENV === "development",
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production'
-      }
-    }
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   callbacks: {
     jwt({ token, user }) {
       if (token.exp && Date.now() >= Number(token.exp) * 1000) {
-        console.warn('JWT token has expired!')
+        console.warn("JWT token has expired!")
         // return null or a minimal token to force re-auth
       }
 
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.firstName = user.firstName;
-        token.lastName = user.lastName;
-        token.name = user.firstName + ' ' + user.lastName
-        token.requestToken = user.requestToken;
+        token.id = user.id
+        token.email = user.email
+        token.firstName = user.firstName
+        token.lastName = user.lastName
+        token.name = user.firstName + " " + user.lastName
+        token.requestToken = user.requestToken
         if (user.expiresIn) {
           token.exp = Math.floor(Date.now() / 1000 + Number(user.expiresIn))
         }
       }
 
-      return token;
+      return token
     },
     session({ session, token }) {
       if (token) {
@@ -132,14 +135,14 @@ export const authOptions: NextAuthOptions = {
           email: token.email as string,
           firstName: token.firstName as string,
           lastName: token.lastName as string,
-          name: token.firstName + ' ' + token.lastName,
-        };
+          name: token.firstName + " " + token.lastName,
+        }
         if (token.exp) {
-          session.expires = new Date(token.exp * 1000).toISOString();
+          session.expires = new Date(token.exp * 1000).toISOString()
         }
       }
 
-      return session;
+      return session
     },
   },
   events: {
@@ -151,6 +154,6 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session }) {
       console.log(session)
-    }
-  }
-};
+    },
+  },
+}
