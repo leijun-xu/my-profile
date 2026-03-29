@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { SignInForm } from "@/components/auth/signin-form"
+import { RegisterForm } from "@/components/auth/signup-form"
 import DevIcons from "@/components/devtool/devtoolIcon"
+import Link from "next/link"
 
-export default function SiginInPage() {
+export default function RegisterPage() {
   return (
     <>
       <style>
@@ -15,7 +15,7 @@ export default function SiginInPage() {
           <div className="absolute -inset-0.5 rounded-2xl bg-linear-to-r from-pink-500 to-blue-600 opacity-30 blur transition duration-300 group-hover:opacity-50"></div>
           <div className="relative w-full max-w-[1000px] overflow-hidden rounded-3xl bg-gray-100 text-gray-500 shadow-xl">
             <div className="w-full md:flex">
-              <div className="hidden w-1/2 bg-indigo-500 px-10 py-10 md:block">
+              <div className="hidden w-1/2 bg-green-500/30 px-10 py-10 md:block">
                 <svg
                   id="a87032b8-5b37-4b7e-a4d9-4dbfbe394641"
                   data-name="Layer 1"
@@ -223,21 +223,21 @@ export default function SiginInPage() {
               <div className="w-full px-5 py-10 md:w-1/2 md:px-10">
                 <div className="mb-10 text-center">
                   <h1 className="text-3xl font-bold text-gray-900 uppercase">
-                    sign in
+                    register
                   </h1>
-                  <p>Welcome to view my Resume</p>
+                  <p>Start your journey with my Resume</p>
                   <p className="mt-2 text-sm text-gray-600">
-                    No account yet?{" "}
+                    Already have an account?{" "}
                     <Link
-                      href="/auth/register"
+                      href="/auth/signin"
                       className="text-blue-600 hover:underline"
                     >
-                      Register
+                      Sign In
                     </Link>
                   </p>
                 </div>
                 <div>
-                  <SignInForm />
+                  <RegisterForm />
                 </div>
                 <DevIcons />
               </div>

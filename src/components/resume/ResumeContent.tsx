@@ -1,9 +1,7 @@
 "use client"
 
-import { Github, Mail, PhoneCall, MapPin, FileUser, LogIn } from "lucide-react"
+import { Github, Mail, PhoneCall, MapPin, FileUser } from "lucide-react"
 import Skills from "@/components/resume/skill"
-import AIChat from "@/components/ai/ai-chat"
-import Link from "next/link"
 import { Typewriter } from "@/components/resume/typeWriter"
 import {
   Tooltip,
@@ -11,37 +9,11 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { summary } from "@/lib/const"
 
-export default function Page() {
+export default function ResumeContent() {
   return (
     <div className="relative min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
-      <header>
-        <nav className="w-full">
-          <div className="flex w-full justify-between px-16 py-8">
-            <div className="flex items-center gap-2">
-              <Avatar size="lg">
-                <AvatarImage
-                  src="https://avatars.githubusercontent.com/u/243532682?v=4&size=64"
-                  alt="@shadcn"
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <span className="text-md text-gray-300">徐磊君</span>
-            </div>
-
-            <Link
-              href="/auth/signin"
-              className="ml-10 text-gray-300 transition-colors duration-300 hover:text-white"
-            >
-              <LogIn className="h-7 w-7" />
-            </Link>
-          </div>
-        </nav>
-      </header>
-      <AIChat />
-
       <hr className="mx-44 border-gray-400" />
       <section className="mt-10 px-5 text-gray-300 md:px-20">
         <h4 className="mb-8 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-center text-3xl font-bold text-transparent md:text-left">
@@ -75,7 +47,7 @@ export default function Page() {
                 </b>
               </li>
               <li>
-                1.开发Sparrow（项目管理发布）平台，基于umijs+redux+react+antd搭建开发和维护；
+                1.开发Sparrow（项目管理发布）平台，基于umijs+redux+react+antd搭建和维护；
               </li>
               <li>
                 2.后期中台项目都采用Nextjs+tailwindcss+Shadcn/ui+next-auth进行开发；
@@ -104,8 +76,7 @@ export default function Page() {
               </li>
               <li>2.TARO小程序框架，开发银保小程序，提升客户经理签单效率；</li>
               <li>
-                {" "}
-                3.vue + vant 开发移动端 app 嵌入式 webview
+                3. vue + vant 开发移动端 app 嵌入式 webview
                 页面，并处理跨平台兼容性。{" "}
               </li>
             </ul>
@@ -127,7 +98,6 @@ export default function Page() {
               <li>1.作为核心成员完整参与过多个项目或多个Release的开发工作；</li>
               <li>2.能够总结项目工作的特点，提出一些针对性的改进措施； </li>
               <li>
-                {" "}
                 3.具有一定的风险识别能力，在测试发现之前，感知预发生的bug；{" "}
               </li>
             </ul>
@@ -192,11 +162,14 @@ export default function Page() {
         </div>
       </section>
       {/* 社交链接 */}
-      <div className="mt-12 mb-5 flex justify-center gap-6">
+      <div className="mt-12 flex justify-center gap-6 pb-5">
         {[
-          // { icon: Github, href: 'https://github.com/leijun-xu/my-profile', label: 'GitHub', tooltip: 'Go to github to review code.' },
-          // { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-          // { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+          {
+            icon: Github,
+            href: "https://github.com/leijun-xu/my-profile",
+            label: "GitHub",
+            tooltip: "Go to github to review code.",
+          },
           {
             icon: Mail,
             href: "mailto:765285102@qq.com",
