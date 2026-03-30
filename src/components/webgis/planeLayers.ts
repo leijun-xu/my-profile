@@ -4,8 +4,6 @@ import VectorLayer from "ol/layer/WebGLVector"
 import VectorSource from "ol/source/Vector"
 import fetchFun from "@/lib/fetch"
 import { fromLonLat } from "ol/proj"
-import { LineString } from "ol/geom"
-import { Stroke } from "ol/style"
 
 async function createFeatures() {
   try {
@@ -34,8 +32,6 @@ async function createFeatures() {
         return new Feature({
           geometry: new Point(fromLonLat([state[5], state[6]])),
           state,
-          icao24: state[0],
-          time_position: state[3],
           heading: headingRadians, // 使用弧度而不是角度
           isHover: 0,
           isSelect: 0,
@@ -49,10 +45,13 @@ async function createFeatures() {
 
 async function createPlane() {
   const features = await createFeatures()
+  const source = new VectorSource({
+    features,
+  })
   const normalStyle = {
     "icon-src": "/plane.svg",
-    "icon-width": 23,
-    "icon-height": 23,
+    "icon-width": 26,
+    "icon-height": 26,
     "icon-anchor": [0.5, 0.5],
     "icon-rotate-with-view": false,
     "icon-rotation": ["get", "heading"],
@@ -63,42 +62,38 @@ async function createPlane() {
     "icon-color": "#F40",
   }
   const planesLayer = new VectorLayer({
-    source: new VectorSource({
-      features,
-    }),
+    source,
     style: [
       {
-        filter: ["==", ["+", ["get", "isHover"], ["get", "isSelect"]], 0],
+        filter: ["==", ["+", ["get", "isSelect"], ["get", "isHover"]], 0],
         style: normalStyle,
-      },
-      {
-        else: true,
-        style: activeStyle,
       },
     ],
     name: "planes",
   })
-
-  return [planesLayer]
+  const activePlanesLayer = new VectorLayer({
+    source,
+    style: [
+      {
+        filter: [">", ["+", ["get", "isSelect"], ["get", "isHover"]], 0],
+        style: activeStyle,
+      },
+    ],
+    name: "activePlanes",
+  })
+  return [planesLayer, activePlanesLayer]
 }
 
 function createPath() {
   const layer = new VectorLayer({
     source: new VectorSource({
-      features: [
-        new Feature({
-          geometry: new LineString([
-            fromLonLat([116, 39]),
-            fromLonLat([121, 39]),
-            fromLonLat([135, 39]),
-          ]),
-        }),
-      ],
+      features: [],
     }),
     style: {
       "stroke-width": 2,
-      "stroke-color": "red",
+      "stroke-color": "#f40",
     },
+    name: "path",
   })
   return [layer]
 }

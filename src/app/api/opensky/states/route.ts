@@ -5,10 +5,15 @@ export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
   try {
+    const searchParamsStr = req.nextUrl.searchParams.toString()
+
     const headers = await tokens.getHeaders()
-    const response = await fetch("https://opensky-network.org/api/states/all", {
-      headers,
-    })
+    const response = await fetch(
+      `https://opensky-network.org/api/states/all${searchParamsStr ? "?" + searchParamsStr : ""}`,
+      {
+        headers,
+      }
+    )
     if (!response.ok) {
       return NextResponse.json({
         error: response.statusText,

@@ -6,15 +6,14 @@ export const dynamic = "force-dynamic"
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams
-    console.log(searchParams.toString())
-
     const headers = await tokens.getHeaders()
     const response = await fetch(
-      "https://opensky-network.org/api/tracks?" + searchParams.toString(),
+      "https://opensky-network.org/api/tracks/all?" + searchParams.toString(),
       {
         headers,
       }
     )
+
     if (!response.ok) {
       return NextResponse.json({
         error: response.statusText,
@@ -22,7 +21,6 @@ export async function GET(req: NextRequest) {
       })
     }
     const data = await response.json()
-    console.log(data)
 
     return NextResponse.json(data)
   } catch (error) {

@@ -3,6 +3,10 @@ import { unByKey } from "ol/Observable"
 import type { EventsKey } from "ol/events"
 import type Point from "ol/geom/Point"
 import fetchFun from "@/lib/fetch"
+import { fromLonLat } from "ol/proj"
+import VectorLayer from "ol/layer/WebGLVector"
+import { LineString } from "ol/geom"
+import { Coordinate } from "ol/coordinate"
 
 // Store event keys for cleanup
 let hoverEventKey: EventsKey | null = null
@@ -46,6 +50,7 @@ function attachClickEvent(map: Map) {
     if (lastClickFeature) {
       lastClickFeature.set("isSelect", 0)
       lastClickFeature = null
+      removePath()
     }
 
     const features = map.getFeaturesAtPixel(e.pixel, {
@@ -56,9 +61,9 @@ function attachClickEvent(map: Map) {
     const clickedFeature = features[0] as Feature
 
     if (clickedFeature) {
+      addPath(clickedFeature)
       clickedFeature.set("isSelect", 1)
       lastClickFeature = clickedFeature
-      addPath(clickedFeature)
       // reset center point
       const geometry = clickedFeature.getGeometry()
       if (geometry) {
@@ -79,23 +84,47 @@ function attachClickEvent(map: Map) {
       }
     }
   })
+  const pathLayers = map
+    .getLayers()
+    .getArray()
+    .find((layer) => layer.get("name") === "path") as VectorLayer
 
   async function addPath(planeFeature: Feature) {
-    const icao24 = planeFeature.get("icao24")
-    const time = planeFeature.get("time_position")
-    console.log(icao24, time)
-    const data = await fetchFun(
-      `/api/opensky/track?icao24=${icao24}&time=${time}`
+    const icao24 = planeFeature.get("state")[0]
+    const curPoint = planeFeature.getGeometry().getCoordinates() as Coordinate
+    let { path } = await fetchFun(`/api/opensky/tracks?icao24=${icao24}&time=0`)
+    path = path.map((p: number[]) => fromLonLat([p[2], p[1]]))
+
+    pathLayers?.getSource()?.addFeature(
+      new Feature({
+        geometry: new LineString([...path, curPoint]),
+        icao24,
+      })
     )
-    console.log(data)
   }
 
-  function removePath() {}
+  function removePath() {
+    pathLayers?.getSource()?.clear()
+  }
 }
+function attachMoveEndEvent(map: Map) {
+  map.on("moveend", () => {
+    const view = map.getView()
+    const center = view.getCenter() as Coordinate
+    const extent = view.getProjection().getExtent()
 
+    const worldWidth = extent[2] - extent[0]
+    const x = center[0]
+    view.setCenter([
+      ((((x - extent[0]) % worldWidth) + worldWidth) % worldWidth) + extent[0],
+      center[1],
+    ])
+  })
+}
 export function attachEvent(map: Map) {
   attachClickEvent(map)
   attachMoveEvent(map)
+  attachMoveEndEvent(map)
 }
 
 // Clean up event listeners when component unmounts

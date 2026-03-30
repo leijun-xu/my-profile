@@ -3,6 +3,7 @@ import { createBaseLayers } from "./baseLayers"
 import { createPlaneLayers } from "./planeLayers"
 import { fromLonLat } from "ol/proj"
 import { attachEvent } from "./event"
+import { update } from "./update"
 import "ol/ol.css"
 
 // 北京坐标：经度 116.4074°E, 纬度 39.9042°N
@@ -27,4 +28,5 @@ export async function initMap(container: HTMLDivElement) {
     map.addLayer(layer)
   })
   attachEvent(map)
+  update(map)
 }
