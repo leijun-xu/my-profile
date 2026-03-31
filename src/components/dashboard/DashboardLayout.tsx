@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   X,
+  Locate,
 } from "lucide-react"
 import DevIcons from "@/components/devtool/devtoolIcon"
 import AIChat from "@/components/ai/ai-chat"
@@ -26,6 +27,7 @@ const navigation = [
   { name: "看板", href: "/dashboard", icon: Home },
   { name: "简历", href: "/dashboard/resume", icon: FileText },
   { name: "文件管理", href: "/dashboard/files", icon: FolderOpen },
+  { name: "WEBGIS", href: "/dashboard/webgis", icon: Locate },
   { name: "设置", href: "/dashboard/settings", icon: Settings },
 ]
 
@@ -149,7 +151,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* 内容区 */}
-        <main className="flex flex-1 flex-col overflow-auto bg-gray-50 p-4 lg:p-6">
+        <main className="flex flex-1 flex-col overflow-auto bg-gray-50 px-4 pt-4">
           <div className="flex-1">{children}</div>
 
           {/* 底部文字 */}

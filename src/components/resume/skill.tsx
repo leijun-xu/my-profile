@@ -12,8 +12,8 @@ const skillsData = [
   { name: "Vue", level: 80, category: "frontend", color: "#42B883" },
   { name: "Webpack", level: 75, category: "tools", color: "#8DD6F9" },
   { name: "MySql", level: 75, category: "database", color: "#F29E39" },
+  { name: "Webgis", level: 60, category: "frontend", color: "#3498db" },
 ]
-
 export default function SkillsDemo() {
   return (
     <div>
