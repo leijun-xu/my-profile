@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { initMap } from "@/components/webgis"
-import { detachEvents } from "@/components/webgis/event"
+import { initMap, destroyMap } from "@/components/webgis"
 import { LogIn } from "lucide-react"
 import Link from "next/link"
 
@@ -11,7 +10,7 @@ export default function SettingsPage() {
   useEffect(() => {
     mapRef.current && initMap(mapRef.current)
     return () => {
-      detachEvents()
+      destroyMap()
     }
   }, [])
   return (
