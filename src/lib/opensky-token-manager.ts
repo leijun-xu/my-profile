@@ -1,7 +1,9 @@
 const TOKEN_URL =
   "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token"
-const CLIENT_ID = process.env.OPENSKY_CLIENT_ID || "your_client_id"
-const CLIENT_SECRET = process.env.OPENSKY_CLIENT_SECRET || "your_client_secret"
+const CLIENT_ID =
+  process.env.OPENSKY_CLIENT_ID || "qing16936@gmail.com-api-client"
+const CLIENT_SECRET =
+  process.env.OPENSKY_CLIENT_SECRET || "hLEF6SkN0Wg0AUz5wN3tqHzF60fmfOoJ"
 
 // How many seconds before expiry to proactively refresh the token.
 const TOKEN_REFRESH_MARGIN = 30
