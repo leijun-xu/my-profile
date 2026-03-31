@@ -11,6 +11,7 @@ export async function proxy(req: NextRequest) {
     pathname === "/health" ||
     pathname === "/resume" ||
     pathname === "/webgis-public" ||
+    pathname === "/plane.svg" ||
     pathname === "/xuleijun-Frontend-resume.pdf"
 
   if (isPublicRoute) {
