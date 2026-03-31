@@ -17,7 +17,7 @@ export const resumeData = {
       {
         title: "大文件管理",
         description: `这在企业项目中经常用到，所以我在我的网站里面也开发了此功能模块，后端使用Nodejs+multer,前端使用MD5生成文件指纹，分片上传。
-        功能<b class='text-blue-400'>支持大文件分片上传、断点续传、文件合并校验、文件流式下载、文件删除</b>等。路由地址<a href="/dashboard/files" target="_blank"><b class='text-yellow-400'>/dashboard/files</b></a>。需要登录我的网站进入查看哈。`,
+        功能<b class='text-blue-400'>支持大文件分片上传、断点续传、显示下载速度、文件合并校验、文件流式下载、文件删除</b>等。路由地址<a href="/dashboard/files" target="_blank"><b class='text-yellow-400'>/dashboard/files</b></a>。需要登录我的网站进入查看哈。`,
       },
       {
         title: "Webgis",
