@@ -18,7 +18,6 @@ npm run dev
 
 Visit [http://localhost:3000](http://localhost:3000)
 
-
 ## 🛠️ Tech Stack
 
 - **Next.js 16** - App Router with Server Components
@@ -43,6 +42,7 @@ src/
 ## 🎨 Design System
 
 Built with **Corporate Trust** aesthetic:
+
 - Primary: Indigo 600 (#4F46E5)
 - Secondary: Violet 600 (#7C3AED)
 - Accent: Emerald 500 (#10B981)
@@ -54,7 +54,10 @@ All colors meet WCAG AA standards.
 See `.env.sample` for all configuration options.
 
 Required:
+
 - `NEXTAUTH_URL` - Application URL
 - `NEXTAUTH_SECRET` - NextAuth secret key
 - `BACKEND_API_URL` - Backend API endpoint
-
+- `DEEPSEEK_API_KEY` - Deepseek API key
+- `OPENSKY_CLIENT_ID` - opensky client id
+- `OPENSKY_CLIENT_SECRET` - opensky client secret

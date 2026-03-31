@@ -1,15 +1,14 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { initMap } from "@/components/webgis"
-import { detachEvents } from "@/components/webgis/event"
+import { initMap, destroyMap } from "@/components/webgis"
 
 export default function SettingsPage() {
   const mapRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     mapRef.current && initMap(mapRef.current)
     return () => {
-      detachEvents()
+      destroyMap()
     }
   }, [])
   return (
