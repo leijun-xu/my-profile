@@ -9,18 +9,34 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip"
-import { summary } from "@/lib/const"
+import { resumeData } from "@/app/api/chat/prompt"
 
 export default function ResumeContent() {
   return (
     <div className="relative min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
-      <hr className="mx-44 border-gray-400" />
+      <div className="w-full py-5 text-center font-bold wrap-break-word text-yellow-700 md:h-12.5 md:px-20">
+        <Typewriter text={resumeData.personal.welcomeWords} />
+      </div>
+      <section className="mt-10 px-5 text-gray-300 md:px-20">
+        <h4 className="mb-8 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-center text-3xl font-bold text-transparent md:text-left">
+          Key Projects(In my website)
+        </h4>
+        <div className="w-full wrap-break-word">
+          {resumeData.personal.keyProjects.map((kp) => (
+            <div key={kp.title} className="my-2">
+              <h5 className="text-lg font-bold">{kp.title}</h5>
+              <div dangerouslySetInnerHTML={{ __html: kp.description }}></div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="mt-10 px-5 text-gray-300 md:px-20">
         <h4 className="mb-8 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-center text-3xl font-bold text-transparent md:text-left">
           Summary
         </h4>
-        <div className="w-full wrap-break-word md:h-[50px]">
-          <Typewriter text={summary} />
+        <div className="w-full wrap-break-word">
+          <div>{resumeData.personal.summary}</div>
         </div>
       </section>
 
@@ -31,78 +47,27 @@ export default function ResumeContent() {
         <h4 className="mb-8 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-center text-3xl font-bold text-transparent md:text-left">
           Experience
         </h4>
-        <div className="my-10 grid grid-cols-1 md:grid-cols-6">
-          <div className="col-span-2 mb-4 flex flex-col md:mb-0">
-            <h5 className="text-xl font-bold md:text-2xl">
-              Full Stack Developer
-            </h5>
-            <h6 className="text-lg font-bold">Paypal贝宝科技</h6>
-            <p>2023/06 - 至今</p>
+        {resumeData.experiences.map((exp) => (
+          <div
+            key={exp.company}
+            className="my-10 grid grid-cols-1 md:grid-cols-6"
+          >
+            <div className="col-span-2 mb-4 flex flex-col md:mb-0">
+              <h5 className="text-xl font-bold md:text-2xl">{exp.role}</h5>
+              <h6 className="text-lg font-bold">{exp.company}</h6>
+              <p>{exp.period}</p>
+            </div>
+            <div className="col-span-4 flex flex-col">
+              <ul>
+                {exp.achievements.map((ach, index) => (
+                  <li key={index} className="mb-1 wrap-break-word">
+                    <div dangerouslySetInnerHTML={{ __html: ach }}></div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div className="col-span-4 flex flex-col">
-            <ul>
-              <li className="mb-1 wrap-break-word">
-                <b>
-                  技术栈：react+antd中后台开发，Nextjs+tailwindcss+Shadcn/ui+next-auth中后台开发
-                </b>
-              </li>
-              <li>
-                1.开发Sparrow（项目管理发布）平台，基于umijs+redux+react+antd搭建和维护；
-              </li>
-              <li>
-                2.后期中台项目都采用Nextjs+tailwindcss+Shadcn/ui+next-auth进行开发；
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="my-10 grid grid-cols-1 md:grid-cols-6">
-          <div className="col-span-2 mb-4 flex flex-col md:mb-0">
-            <h5 className="text-xl font-bold md:text-2xl">
-              Frontend Developer
-            </h5>
-            <h6 className="text-lg font-bold">平安银保科技</h6>
-            <p>2018/12 - 2022/06</p>
-          </div>
-          <div className="col-span-4 flex flex-col">
-            <ul>
-              <li className="mb-1 wrap-break-word">
-                <b>
-                  技术栈：vue2+vant移动端app开发，react+antd中后台开发，taro小程序，qiankun微前端
-                </b>
-              </li>
-              <li>
-                1.研发 BIMS（银保后台管理）平台，基于 umijs + qiankun.js
-                搭建前端微服务架构，整合银保科技多个子平台；
-              </li>
-              <li>2.TARO小程序框架，开发银保小程序，提升客户经理签单效率；</li>
-              <li>
-                3. vue + vant 开发移动端 app 嵌入式 webview
-                页面，并处理跨平台兼容性。{" "}
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="my-10 grid grid-cols-1 md:grid-cols-6">
-          <div className="col-span-2 mb-4 flex flex-col md:mb-0">
-            <h5 className="text-xl font-bold md:text-2xl">Nodejs Developer</h5>
-            <h6 className="text-lg font-bold">埃森哲(中国)有限公司</h6>
-            <p>2014/01 - 2018/12</p>
-          </div>
-          <div className="col-span-4 flex flex-col">
-            <ul>
-              <li className="mb-1 wrap-break-word">
-                <b>
-                  技术栈：jquery+bootstrap+NODEjs+express+Jade+less+mongodb+grunt
-                </b>
-              </li>
-              <li>1.作为核心成员完整参与过多个项目或多个Release的开发工作；</li>
-              <li>2.能够总结项目工作的特点，提出一些针对性的改进措施； </li>
-              <li>
-                3.具有一定的风险识别能力，在测试发现之前，感知预发生的bug；{" "}
-              </li>
-            </ul>
-          </div>
-        </div>
+        ))}
       </section>
       <hr className="mx-44 border-gray-400" />
       <section className="mt-10 px-5 font-semibold md:px-20">
@@ -117,7 +82,7 @@ export default function ResumeContent() {
           </div>
           <div className="col-span-4 flex flex-col">
             <ul>
-              <li>英语CET-4</li>
+              <li>英语CET-6</li>
               <li>日语JLPT-2</li>
               <li>证券从业资格证</li>
               <li>中级经济师-工商管理</li>

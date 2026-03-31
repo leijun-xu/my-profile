@@ -14,9 +14,9 @@ export default function SettingsPage() {
   }, [])
   return (
     <div className="flex h-screen flex-col space-y-6">
-      <div className="text-white">
-        <h1 className="text-3xl font-bold">webgis</h1>
-        <p className="mt-1">
+      <div className="m-0 bg-white py-2 text-center md:text-left">
+        <h1 className="text-3xl font-bold text-gray-900">webgis</h1>
+        <p className="mt-1 text-gray-600">
           全球航班实时动态飞行(数据来源:
           <a href="https://opensky-network.org/" target="_blank">
             OPENSKY
