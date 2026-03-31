@@ -69,8 +69,8 @@ async function createPlane() {
         style: normalStyle,
       },
     ],
-    name: "planes",
   })
+  planesLayer.set("name", "planes")
   const activePlanesLayer = new VectorLayer({
     source,
     style: [
@@ -79,8 +79,8 @@ async function createPlane() {
         style: activeStyle,
       },
     ],
-    name: "activePlanes",
   })
+  activePlanesLayer.set("name", "activePlanes")
   return [planesLayer, activePlanesLayer]
 }
 
@@ -93,8 +93,8 @@ function createPath() {
       "stroke-width": 2,
       "stroke-color": "#f40",
     },
-    name: "path",
   })
+  layer.set("name", "path")
   return [layer]
 }
 
