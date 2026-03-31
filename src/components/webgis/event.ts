@@ -91,10 +91,12 @@ function attachClickEvent(map: Map) {
 
   async function addPath(planeFeature: Feature) {
     const icao24 = planeFeature.get("state")[0]
-    const curPoint = planeFeature.getGeometry().getCoordinates() as Coordinate
     let { path } = await fetchFun(`/api/opensky/tracks?icao24=${icao24}&time=0`)
-    path = path.map((p: number[]) => fromLonLat([p[2], p[1]]))
 
+    if (!path || path.length === 0) return
+    path = path.map((p: number[]) => fromLonLat([p[2], p[1]]))
+    const geometry = planeFeature.getGeometry() as Point
+    const curPoint = geometry.getCoordinates() as Coordinate
     pathLayers?.getSource()?.addFeature(
       new Feature({
         geometry: new LineString([...path, curPoint]),

@@ -4,6 +4,7 @@ import VectorLayer from "ol/layer/WebGLVector"
 import VectorSource from "ol/source/Vector"
 import { fromLonLat } from "ol/proj"
 import Point from "ol/geom/Point"
+import { LineString } from "ol/geom"
 
 let lastUpdateTime = 0 // 上次更新时间
 let lastRemoteUpdateTime = Date.now() // 上次远程更新时间
@@ -81,7 +82,7 @@ function applyRemoteState(map: OLMap) {
     }
   }
 
-  for (const [_, newState] of remoteStatesMap) {
+  for (const [, newState] of remoteStatesMap) {
     const headingDegrees = newState[10] || 0
     const heading = headingDegrees * (Math.PI / 180)
     const feature = new Feature({
@@ -104,7 +105,6 @@ function updatePlaneLayer(map: OLMap) {
     .find((layer) => layer.get("name") === "planes") as VectorLayer
   const source = planeLayer.getSource() as VectorSource
   const features = source.getFeatures()
-  let i = 0
   for (const feature of features) {
     // 更新飞机特征
     const state = feature.get("state")
@@ -118,14 +118,12 @@ function updatePlaneLayer(map: OLMap) {
       continue
     }
     const [x, y] = fromLonLat([lon, lat]) // 转换为地图坐标
-    const t = (Date.now() - timePosition) / 1000 // 经过的时间
+    const t = Date.now() / 1000 - timePosition // 经过的时间
     const d = velocity * t //移动的距离
+    // console.log("updatePlaneLayer:", { t, d, x, y, heading })
     const newPoint = [x + d * Math.sin(heading), y + d * Math.cos(heading)]
-    // if (i == 0) {
-    //   console.log("First plane position updated", newPoint)
-    // }
-    feature.getGeometry().setCoordinates(newPoint)
-    i++
+    // 对于 WebGLVector，需要创建新的 geometry 对象来触发重新渲染
+    feature.setGeometry(new Point(newPoint))
   }
 }
 
@@ -139,23 +137,29 @@ function updatePathLayer(map: OLMap) {
     (layer) => layer.get("name") === "planes"
   ) as VectorLayer
 
-  const source = pathLayer.getSource() as VectorSource
+  const pathsource = pathLayer.getSource() as VectorSource
 
-  const features = source.getFeatures()
+  const pathfeatures = pathsource.getFeatures()
 
-  for (const feature of features) {
-    const pathPoints = feature.getGeometry().getCoordinates()
+  for (const feature of pathfeatures) {
+    const geometry = feature.getGeometry() as LineString
+    const pathPoints = geometry.getCoordinates()
     const icao24 = feature.get("icao24")
-    const planeFeature = planeLayer
-      .getSource()
+    const planeSource = planeLayer.getSource()
+    if (!planeSource) {
+      continue
+    }
+    const planeFeature = planeSource
       .getFeatures()
-      .find((feature) => feature.get("state")[0] === icao24) as Feature
+      .find((f) => f.get("state")[0] === icao24) as Feature
 
     if (!planeFeature) {
       continue
     }
-    const curPoint = planeFeature.getGeometry().getCoordinates()
+    const planeGeometry = planeFeature.getGeometry() as Point
+    const curPoint = planeGeometry.getCoordinates()
     pathPoints[pathPoints.length - 1] = curPoint
-    feature.getGeometry().setCoordinates([...pathPoints])
+    // 对于 WebGLVector，需要创建新的 geometry 对象来触发重新渲染
+    feature.setGeometry(new LineString([...pathPoints]))
   }
 }
