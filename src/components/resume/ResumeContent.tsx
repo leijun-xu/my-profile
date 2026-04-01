@@ -51,9 +51,8 @@ export default function ResumeContent() {
               alt={imgSrc}
               width={500}
               height={300}
-              sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 33vw"
-              style={{ width: "90%", height: "auto" }}
-              className="rotate-90 md:rotate-0"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 50vw"
+              className="h-auto w-[90vh] rotate-90 md:w-[90vw] md:rotate-0 lg:w-[50vw]"
             />
           )}
         </div>
