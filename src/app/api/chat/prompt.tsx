@@ -15,15 +15,17 @@ export const resumeData = {
       欢迎follow我的github，地址在底部链接中。右上角按钮点击可以登录哦~`,
     keyProjects: [
       {
+        href: "/dashboard/files",
         title: "大文件管理",
-        gif: "/assets/file.gif",
-        description: `这在企业项目中经常用到，所以我在我的网站里面也开发了此功能模块，后端使用Nodejs+multer,前端使用MD5生成文件指纹，分片上传。
+        gif: "/assets/file-md5.gif",
+        description: `这在企业项目中经常用到，所以我在我的网站里面也开发了此功能模块，后端使用express+multer,前端使用MD5生成文件指纹，对超过10M的文件开启Service Worker，然后分片上传。
         功能<b class='text-blue-400'>支持大文件分片上传、断点续传、显示下载速度、文件合并校验、文件流式下载、文件删除</b>等。路由地址<a href="/dashboard/files" target="_blank"><b class='text-yellow-400'>/dashboard/files</b></a>。需要登录我的网站进入查看哈。`,
       },
       {
+        href: "/webgis-public",
         title: "Webgis",
         gif: "/assets/webgis.gif",
-        description: `Webgis项目，基于OpenLayers和Opensky数据源构建的地理信息系统平台。展示全球航班实时动态飞行和飞行轨迹。
+        description: `Webgis项目，基于OpenLayers、天地图和Opensky数据源构建的地理信息系统平台。展示全球航班实时动态飞行和飞行轨迹。
          涉及到<b class='text-blue-400'>大量数据的处理、地图渲染、数据请求、数据处理、动画效果等,利用到了webglTile、requestAnimationFrame、远程数据和本地数据的处理来进行性能的优化</b>。
         路由地址<a href="/webgis-public" target="_blank"><b class='text-yellow-400'>/webgis-public</b></a>。此为公开对外展示。`,
       },
@@ -52,7 +54,7 @@ export const resumeData = {
     },
     {
       company: "平安银保科技",
-      period: "2018/12-2022/06",
+      period: "2017/01-2022/06",
       role: "前端开发工程师",
       achievements: [
         `1.研发 BIMS（银保后台管理）平台，基于 umijs + qiankun.js 搭建前端微服务架构、并开发与之适配的 vue2、react
@@ -67,7 +69,7 @@ export const resumeData = {
     },
     {
       company: "埃森哲(中国)有限公司",
-      period: "2014/01-2018/12",
+      period: "2014/01-2016/12",
       role: "Node开发工程师",
       achievements: [
         `1.熟练使用相关开发框架或第三方类库，比如<b class='text-yellow-400'>jquery+bootstrap+NODEjs+express+Jade+less+mongodb+grunt</b>。`,

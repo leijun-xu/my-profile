@@ -41,7 +41,6 @@ class TokenManager {
           client_id: CLIENT_ID,
           client_secret: CLIENT_SECRET,
         }).toString(),
-        signal: AbortSignal.timeout(15000),
       })
 
       if (!response.ok) {

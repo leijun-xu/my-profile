@@ -9,11 +9,13 @@ import fetchFun from "@/lib/fetch"
 import ServerFilesList from "./serverFilesList"
 
 const CHUNK_SIZE = 5 * 1024 * 1024 // 5MB per chunk
+const MD5_WORKER_THRESHOLD = 10 * 1024 * 1024 // 10MB以上使用Worker计算MD5
 
 export interface UploadFile {
   id: string
   file: File
-  md5: string
+  md5?: string
+  md5Progress: number
   progress: number
   status: "pending" | "uploading" | "completed" | "failed" | "paused"
   uploadedChunks: Set<number>
@@ -33,38 +35,89 @@ export default function FilesContent() {
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pausedUploadIdsRef = useRef<Set<string>>(new Set())
+  const abortControllersRef = useRef<Map<string, AbortController>>(new Map())
   const [serverFiles, setServerFiles] = useState<ServerFile[]>([])
   const [isLoadingFiles, setIsLoadingFiles] = useState(false)
+  const workersRef = useRef<Map<string, Worker>>(new Map())
 
-  // 计算文件MD5
-  const calculateMD5 = async (file: File): Promise<string> => {
-    const spark = new (await import("spark-md5")).default()
-    const fileReader = new FileReader()
-    const chunkSize = 2 * 1024 * 1024 // 2MB chunks
-    const chunks = Math.ceil(file.size / chunkSize)
-    let currentChunk = 0
+  // 计算文件MD5 - 使用Worker优化大文件
+  const calculateMD5 = async (
+    file: File,
+    fileId: string,
+    onProgress?: (progress: number) => void
+  ): Promise<string> => {
+    // 小文件直接在主线程计算
+    if (file.size < MD5_WORKER_THRESHOLD) {
+      const spark = new (await import("spark-md5")).default()
+      const fileReader = new FileReader()
+      const chunkSize = 2 * 1024 * 1024 // 2MB chunks
+      const chunks = Math.ceil(file.size / chunkSize)
+      let currentChunk = 0
 
-    return new Promise((resolve, reject) => {
-      fileReader.onload = (e) => {
-        spark.append(e.target?.result as ArrayBuffer)
-        currentChunk++
+      return new Promise((resolve, reject) => {
+        fileReader.onload = (e) => {
+          spark.append(e.target?.result as ArrayBuffer)
+          currentChunk++
 
-        if (currentChunk < chunks) {
-          loadNext()
-        } else {
-          resolve(spark.end())
+          if (onProgress) {
+            onProgress((currentChunk / chunks) * 100)
+          }
+
+          if (currentChunk < chunks) {
+            loadNext()
+          } else {
+            resolve(spark.end())
+          }
         }
+
+        fileReader.onerror = reject
+
+        const loadNext = () => {
+          const start = currentChunk * chunkSize
+          const end = Math.min(start + chunkSize, file.size)
+          fileReader.readAsArrayBuffer(file.slice(start, end))
+        }
+
+        loadNext()
+      })
+    }
+
+    // 大文件使用Worker计算
+    return new Promise((resolve, reject) => {
+      try {
+        const worker = new Worker("/assets/md5-worker.js")
+        workersRef.current.set(fileId, worker)
+
+        worker.onmessage = (e) => {
+          const { type, fileId: returnedFileId, md5, progress, error } = e.data
+
+          if (type === "progress" && returnedFileId === fileId) {
+            onProgress?.(progress)
+          } else if (type === "complete" && returnedFileId === fileId) {
+            worker.terminate()
+            workersRef.current.delete(fileId)
+            resolve(md5)
+          } else if (type === "error" && returnedFileId === fileId) {
+            worker.terminate()
+            workersRef.current.delete(fileId)
+            reject(new Error(error))
+          }
+        }
+
+        worker.onerror = (error) => {
+          worker.terminate()
+          workersRef.current.delete(fileId)
+          reject(error)
+        }
+
+        worker.postMessage({
+          fileId,
+          file,
+          chunkSize: 2 * 1024 * 1024, // 2MB chunks
+        })
+      } catch (error) {
+        reject(error)
       }
-
-      fileReader.onerror = reject
-
-      const loadNext = () => {
-        const start = currentChunk * chunkSize
-        const end = Math.min(start + chunkSize, file.size)
-        fileReader.readAsArrayBuffer(file.slice(start, end))
-      }
-
-      loadNext()
     })
   }
 
@@ -104,7 +157,8 @@ export default function FilesContent() {
     fileId: string,
     fileName: string,
     fileSize: number,
-    onProgress: (progress: number, speed: string) => void
+    onProgress: (progress: number, speed: string) => void,
+    signal?: AbortSignal
   ): Promise<void> => {
     const start = chunkIndex * CHUNK_SIZE
     const end = Math.min(start + CHUNK_SIZE, file.size)
@@ -119,9 +173,16 @@ export default function FilesContent() {
     formData.append("fileSize", fileSize.toString())
 
     const startTime = Date.now()
+
+    // 检查是否被取消
+    if (signal?.aborted) {
+      throw new Error("Upload cancelled")
+    }
+
     const response = await fetchFun("/api/file/upload", {
       method: "POST",
       body: formData,
+      signal,
     })
 
     const endTime = Date.now()
@@ -180,10 +241,30 @@ export default function FilesContent() {
     fetchServerFiles()
   }, [])
 
+  // 清理Worker和AbortController
+  useEffect(() => {
+    const workers = workersRef.current
+    const abortControllers = abortControllersRef.current
+    return () => {
+      workers.forEach((worker) => worker.terminate())
+      workers.clear()
+      abortControllers.forEach((controller) => controller.abort())
+      abortControllers.clear()
+    }
+  }, [])
+
   // 开始上传文件
   const startUpload = async (uploadFile: UploadFile): Promise<void> => {
-    // 清除可能的暂停标记
+    // 如果MD5还没计算完，等待MD5计算完成
+    if (!uploadFile.md5) {
+      return
+    }
+
+    // 清除暂停标记
     pausedUploadIdsRef.current.delete(uploadFile.id)
+    // 创建新的 AbortController
+    const abortController = new AbortController()
+    abortControllersRef.current.set(uploadFile.id, abortController)
 
     setUploadFiles((prev) =>
       prev.map((f) =>
@@ -220,7 +301,6 @@ export default function FilesContent() {
             ? {
                 ...f,
                 uploadedChunks: uploadedChunkSet,
-                progress: (uploadedChunkSet.size / totalChunks) * 100,
               }
             : f
         )
@@ -230,7 +310,12 @@ export default function FilesContent() {
       for (let i = 0; i < totalChunks; i++) {
         // 检查暂停状态
         if (pausedUploadIdsRef.current.has(uploadFile.id)) {
-          pausedUploadIdsRef.current.delete(uploadFile.id) // 清除暂停标记
+          // 暂停时设置为 paused 状态
+          setUploadFiles((prev) =>
+            prev.map((f) =>
+              f.id === uploadFile.id ? { ...f, status: "paused" } : f
+            )
+          )
           return
         }
         if (uploadedChunkSet.has(i)) continue
@@ -241,6 +326,7 @@ export default function FilesContent() {
           )
         )
 
+        const abortController = abortControllersRef.current.get(uploadFile.id)
         await uploadChunk(
           file,
           i,
@@ -263,7 +349,8 @@ export default function FilesContent() {
                   : f
               )
             )
-          }
+          },
+          abortController?.signal
         )
 
         uploadedChunkSet.add(i)
@@ -297,13 +384,21 @@ export default function FilesContent() {
       }
     } catch (error) {
       console.error("Upload error:", error)
+
+      // 检查是否是用户主动暂停
+      const isPaused = pausedUploadIdsRef.current.has(uploadFile.id)
+
       setUploadFiles((prev) =>
         prev.map((f) =>
           f.id === uploadFile.id
             ? {
                 ...f,
-                status: "failed",
-                error: error instanceof Error ? error.message : "Upload failed",
+                status: isPaused ? "paused" : "failed",
+                error: isPaused
+                  ? undefined
+                  : error instanceof Error
+                    ? error.message
+                    : "Upload failed",
               }
             : f
         )
@@ -311,26 +406,64 @@ export default function FilesContent() {
     }
   }
 
-  // 处理文件选择
+  // 处理文件选择 - 单文件上传
   const handleFiles = async (files: FileList | null) => {
-    if (!files) return
+    if (!files || files.length === 0) return
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      const fileId = crypto.randomUUID()
-      const md5 = await calculateMD5(file)
+    // 只取第一个文件
+    const file = files[0]
+    const fileId = crypto.randomUUID()
 
-      const newUploadFile: UploadFile = {
-        id: fileId,
-        file,
-        md5,
-        progress: 0,
-        status: "pending",
-        uploadedChunks: new Set(),
-      }
+    // 先添加文件到列表，状态为pending
+    const newUploadFile: UploadFile = {
+      id: fileId,
+      file,
+      progress: 0,
+      md5Progress: 0,
+      status: "pending",
+      uploadedChunks: new Set(),
+    }
 
-      setUploadFiles((prev) => [...prev, newUploadFile])
-      startUpload(newUploadFile)
+    setUploadFiles((prev) => [...prev, newUploadFile])
+
+    // 异步计算MD5
+    try {
+      const md5 = await calculateMD5(file, fileId, (progress) => {
+        setUploadFiles((prev) =>
+          prev.map((f) =>
+            f.id === fileId ? { ...f, md5Progress: progress } : f
+          )
+        )
+      })
+
+      // MD5计算完成，更新文件信息并开始上传
+      setUploadFiles((prev) => {
+        const updatedFiles = prev.map((f) =>
+          f.id === fileId ? { ...f, md5, md5Progress: 100 } : f
+        )
+
+        // 从更新后的列表中获取文件对象并开始上传
+        const uploadFile = updatedFiles.find((f) => f.id === fileId)
+        if (uploadFile && uploadFile.md5) {
+          // 使用 setTimeout 确保 state 更新后再开始上传
+          setTimeout(() => startUpload(uploadFile), 0)
+        }
+
+        return updatedFiles
+      })
+    } catch (error) {
+      console.error("Failed to calculate MD5:", error)
+      setUploadFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId
+            ? {
+                ...f,
+                status: "failed",
+                error: error instanceof Error ? error.message : "MD5计算失败",
+              }
+            : f
+        )
+      )
     }
   }
 
@@ -372,6 +505,8 @@ export default function FilesContent() {
   // 暂停上传
   const pauseUpload = (id: string) => {
     pausedUploadIdsRef.current.add(id)
+    // 取消当前正在上传的请求
+    abortControllersRef.current.get(id)?.abort()
     setUploadFiles((prev) =>
       prev.map((f) => (f.id === id ? { ...f, status: "paused" } : f))
     )
@@ -405,7 +540,6 @@ export default function FilesContent() {
           <input
             ref={fileInputRef}
             type="file"
-            multiple
             className="hidden"
             onChange={(e) => handleFiles(e.target.files)}
           />
@@ -427,10 +561,10 @@ export default function FilesContent() {
           </div>
         </div>
 
-        {/* 文件列表 */}
+        {/* 文件列表 - 单文件上传，只显示最后一个 */}
         {uploadFiles.length > 0 && (
           <div className="space-y-4">
-            {uploadFiles.map((uploadFile) => (
+            {uploadFiles.slice(-1).map((uploadFile) => (
               <Card key={uploadFile.id}>
                 <CardContent className="pt-6">
                   <div className="space-y-3">
@@ -477,6 +611,12 @@ export default function FilesContent() {
                         {uploadFile.status === "pending" && (
                           <Button
                             size="sm"
+                            className={
+                              uploadFile.md5
+                                ? "cursor-pointer"
+                                : "cursor-not-allowed"
+                            }
+                            disabled={!uploadFile.md5}
                             onClick={() => startUpload(uploadFile)}
                           >
                             开始
@@ -522,7 +662,11 @@ export default function FilesContent() {
                     <div className="space-y-1">
                       <Progress value={uploadFile.progress} />
                       <div className="flex justify-between text-xs text-gray-500">
-                        <span>{Math.round(uploadFile.progress)}%</span>
+                        <span>
+                          {uploadFile.md5
+                            ? `${Math.round(uploadFile.progress)}%`
+                            : `计算MD5中 ${Math.round(uploadFile.md5Progress)}%`}
+                        </span>
                         <span>
                           {uploadFile.uploadedChunks.size} /{" "}
                           {Math.ceil(uploadFile.file.size / CHUNK_SIZE)} 分片

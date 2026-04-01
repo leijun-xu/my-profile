@@ -11,7 +11,6 @@ export async function GET(req: NextRequest) {
       "https://opensky-network.org/api/tracks/all?" + searchParams.toString(),
       {
         headers,
-        signal: AbortSignal.timeout(15000),
       }
     )
 
