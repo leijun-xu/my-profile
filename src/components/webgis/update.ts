@@ -131,6 +131,8 @@ function applyRemoteState(map: OLMap) {
 
     if (newState) {
       feature.set("state", newState)
+      // 更新 geometry 位置到远程数据的新位置
+      feature.setGeometry(new Point(fromLonLat([newState[5], newState[6]])))
       // 更新这架飞机的时间记录
       planeLastUpdateTime.set(String(icao24), newState[3])
       remoteStatesMap.delete(String(icao24))
@@ -201,10 +203,10 @@ function updatePlaneLayer(map: OLMap) {
     // 对于 WebGLVector，需要创建新的 geometry 对象来触发重新渲染
     feature.setGeometry(new Point(newPoint))
 
-    // // 将新的地图坐标转回经纬度，更新到 state 中
-    // const newLonLat = transform([x, y], "EPSG:3857", "EPSG:4326")
-    // state[5] = newLonLat[0]
-    // state[6] = newLonLat[1]
+    // 将新的地图坐标转回经纬度，更新到 state 中（供 path 图层使用）
+    const newLonLat = transform(newPoint, "EPSG:3857", "EPSG:4326")
+    state[5] = newLonLat[0]
+    state[6] = newLonLat[1]
   }
 }
 

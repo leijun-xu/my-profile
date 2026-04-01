@@ -8,11 +8,10 @@ export async function proxy(req: NextRequest) {
     pathname === "/" ||
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/sso-callback") ||
+    pathname.startsWith("/assets") ||
     pathname === "/health" ||
     pathname === "/resume" ||
-    pathname === "/webgis-public" ||
-    pathname === "/plane.svg" ||
-    pathname === "/xuleijun-Frontend-resume.pdf"
+    pathname === "/webgis-public"
 
   if (isPublicRoute) {
     return NextResponse.next()

@@ -1,6 +1,13 @@
 "use client"
 
-import { Github, Mail, PhoneCall, MapPin, FileUser } from "lucide-react"
+import {
+  Github as GithubIcon,
+  Mail,
+  PhoneCall,
+  MapPin,
+  FileUser,
+  X,
+} from "lucide-react"
 import Skills from "@/components/resume/skill"
 import { Typewriter } from "@/components/resume/typeWriter"
 import {
@@ -10,10 +17,44 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip"
 import { resumeData } from "@/app/api/chat/prompt"
+import Image from "next/image"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 export default function ResumeContent() {
+  const [show, setShow] = useState(false)
+  const [imgSrc, setImgSrc] = useState<string | null>(null)
+  const showBig = (gifSrc: string) => {
+    setShow(true)
+    setImgSrc(gifSrc)
+  }
   return (
-    <div className="relative min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div
+        className={cn(
+          "group absolute inset-0 z-20 bg-gray-500/80",
+          show ? "block" : "hidden"
+        )}
+      >
+        <button
+          className="absolute top-4 right-4 hidden cursor-pointer rounded-full bg-gray-300 p-1 text-black shadow-md ring-1 ring-black/10 group-hover:block"
+          onClick={() => setShow(false)}
+        >
+          <X className="h-6 w-6" />
+        </button>
+        <div className="flex h-screen w-full items-center justify-center">
+          {imgSrc && (
+            <Image
+              src={imgSrc}
+              alt={imgSrc}
+              width={500}
+              height={300}
+              sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 33vw"
+              style={{ width: "90%", height: "auto" }}
+            />
+          )}
+        </div>
+      </div>
       <div className="w-full py-5 text-center font-bold wrap-break-word text-yellow-700 md:h-12.5 md:px-20">
         <Typewriter text={resumeData.personal.welcomeWords} />
       </div>
@@ -26,6 +67,14 @@ export default function ResumeContent() {
             <div key={kp.title} className="my-2">
               <h5 className="text-lg font-bold">{kp.title}</h5>
               <div dangerouslySetInnerHTML={{ __html: kp.description }}></div>
+              <Image
+                src={kp.gif}
+                alt={kp.title}
+                width={500}
+                height={300}
+                className="cursor-pointer"
+                onClick={() => showBig(kp.gif)}
+              />
             </div>
           ))}
         </div>
@@ -130,7 +179,7 @@ export default function ResumeContent() {
       <div className="mt-12 flex justify-center gap-6 pb-5">
         {[
           {
-            icon: Github,
+            icon: GithubIcon,
             href: "https://github.com/leijun-xu/my-profile",
             label: "GitHub",
             tooltip: "Go to github to review code.",
@@ -143,7 +192,7 @@ export default function ResumeContent() {
           },
           {
             icon: FileUser,
-            href: "./xuleijun-Frontend-resume.pdf",
+            href: "/assets/xuleijun-Frontend-resume.pdf",
             label: "Resume",
             download: true,
             tooltip: "This is my PDF resume,you can download it.",

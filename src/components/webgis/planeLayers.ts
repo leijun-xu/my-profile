@@ -49,7 +49,7 @@ async function createPlane() {
     features,
   })
   const normalStyle = {
-    "icon-src": "/plane.svg",
+    "icon-src": "/assets/plane.svg",
     "icon-width": 26,
     "icon-height": 26,
     "icon-anchor": [0.5, 0.5],
