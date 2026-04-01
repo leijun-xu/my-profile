@@ -16,11 +16,13 @@ export const resumeData = {
     keyProjects: [
       {
         title: "大文件管理",
+        gif: "/assets/file.gif",
         description: `这在企业项目中经常用到，所以我在我的网站里面也开发了此功能模块，后端使用Nodejs+multer,前端使用MD5生成文件指纹，分片上传。
         功能<b class='text-blue-400'>支持大文件分片上传、断点续传、显示下载速度、文件合并校验、文件流式下载、文件删除</b>等。路由地址<a href="/dashboard/files" target="_blank"><b class='text-yellow-400'>/dashboard/files</b></a>。需要登录我的网站进入查看哈。`,
       },
       {
         title: "Webgis",
+        gif: "/assets/webgis.gif",
         description: `Webgis项目，基于OpenLayers和Opensky数据源构建的地理信息系统平台。展示全球航班实时动态飞行和飞行轨迹。
          涉及到<b class='text-blue-400'>大量数据的处理、地图渲染、数据请求、数据处理、动画效果等,利用到了webglTile、requestAnimationFrame、远程数据和本地数据的处理来进行性能的优化</b>。
         路由地址<a href="/webgis-public" target="_blank"><b class='text-yellow-400'>/webgis-public</b></a>。此为公开对外展示。`,
