@@ -21,6 +21,7 @@ import { resumeData } from "@/app/api/chat/prompt"
 import Image from "next/image"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import TWCard from "@/components/tw/card"
 
 export default function ResumeContent() {
   const [show, setShow] = useState(false)
@@ -57,7 +58,10 @@ export default function ResumeContent() {
         touch2.clientX - touch1.clientX,
         touch2.clientY - touch1.clientY
       )
-      const newScale = Math.max(0.5, Math.min(5, transform.scale * (distance / transform.startDistance)))
+      const newScale = Math.max(
+        0.5,
+        Math.min(5, transform.scale * (distance / transform.startDistance))
+      )
       setTransform({
         scale: newScale,
         startDistance: distance,
@@ -125,20 +129,9 @@ export default function ResumeContent() {
         <h4 className="mb-8 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-center text-3xl font-bold text-transparent md:text-left">
           Key Projects(In my website)
         </h4>
-        <div className="w-full wrap-break-word">
+        <div className="grid grid-cols-1 justify-items-center gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {resumeData.personal.keyProjects.map((kp) => (
-            <div key={kp.title} className="my-2">
-              <h5 className="text-lg font-bold">{kp.title}</h5>
-              <div dangerouslySetInnerHTML={{ __html: kp.description }}></div>
-              <Image
-                src={kp.gif}
-                alt={kp.title}
-                width={500}
-                height={300}
-                className="cursor-pointer"
-                onClick={() => showBig(kp.gif)}
-              />
-            </div>
+            <TWCard {...kp} key={kp.title} onImgClick={showBig} />
           ))}
         </div>
       </section>
