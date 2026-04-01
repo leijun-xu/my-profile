@@ -25,6 +25,8 @@ export default function ResumeContent() {
   const [show, setShow] = useState(false)
   const [imgSrc, setImgSrc] = useState<string | null>(null)
   const showBig = (gifSrc: string) => {
+    // 将滚动条设置到top
+    window.scrollTo({ top: 0, behavior: "smooth" })
     setShow(true)
     setImgSrc(gifSrc)
   }
@@ -32,12 +34,12 @@ export default function ResumeContent() {
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
       <div
         className={cn(
-          "group absolute inset-0 z-20 bg-gray-500/80",
+          "absolute inset-0 z-20 bg-gray-500/80",
           show ? "block" : "hidden"
         )}
       >
         <button
-          className="absolute top-4 right-4 hidden cursor-pointer rounded-full bg-gray-300 p-1 text-black shadow-md ring-1 ring-black/10 group-hover:block"
+          className="absolute top-4 right-4 cursor-pointer rounded-full bg-gray-300 p-1 text-black shadow-md ring-1 ring-black/10"
           onClick={() => setShow(false)}
         >
           <X className="h-6 w-6" />
@@ -51,6 +53,7 @@ export default function ResumeContent() {
               height={300}
               sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 33vw"
               style={{ width: "90%", height: "auto" }}
+              className="rotate-90 md:rotate-0"
             />
           )}
         </div>
