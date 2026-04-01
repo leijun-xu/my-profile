@@ -7,6 +7,7 @@ import {
   MapPin,
   FileUser,
   X,
+  RotateCcw,
 } from "lucide-react"
 import Skills from "@/components/resume/skill"
 import { Typewriter } from "@/components/resume/typeWriter"
@@ -24,11 +25,52 @@ import { cn } from "@/lib/utils"
 export default function ResumeContent() {
   const [show, setShow] = useState(false)
   const [imgSrc, setImgSrc] = useState<string | null>(null)
+  const [transform, setTransform] = useState({ scale: 1, startDistance: 0 })
+
   const showBig = (gifSrc: string) => {
     // 将滚动条设置到top
     window.scrollTo({ top: 0, behavior: "smooth" })
     setShow(true)
     setImgSrc(gifSrc)
+    setTransform({ scale: 1, startDistance: 0 })
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      // 双指缩放
+      const touch1 = e.touches[0]
+      const touch2 = e.touches[1]
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      )
+      setTransform((prev) => ({ ...prev, startDistance: distance }))
+    }
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && transform.startDistance) {
+      e.preventDefault()
+      const touch1 = e.touches[0]
+      const touch2 = e.touches[1]
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      )
+      const newScale = Math.max(0.5, Math.min(5, transform.scale * (distance / transform.startDistance)))
+      setTransform({
+        scale: newScale,
+        startDistance: distance,
+      })
+    }
+  }
+
+  const handleTouchEnd = () => {
+    // 不需要特殊处理
+  }
+
+  const resetTransform = () => {
+    setTransform({ scale: 1, startDistance: 0 })
   }
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -39,22 +81,40 @@ export default function ResumeContent() {
         )}
       >
         <button
-          className="absolute top-4 right-4 cursor-pointer rounded-full bg-gray-300 p-1 text-black shadow-md ring-1 ring-black/10"
+          className="absolute top-4 right-4 z-30 cursor-pointer rounded-full bg-gray-300 p-1 text-black shadow-md ring-1 ring-black/10"
           onClick={() => setShow(false)}
         >
           <X className="h-6 w-6" />
         </button>
-        <div className="flex h-screen w-full items-center justify-center">
+        <button
+          className="absolute top-4 right-16 z-30 cursor-pointer rounded-full bg-gray-300 p-1 text-black shadow-md ring-1 ring-black/10"
+          onClick={resetTransform}
+        >
+          <RotateCcw className="h-6 w-6" />
+        </button>
+        <div
+          className="flex h-screen w-full items-center justify-center overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {imgSrc && (
-            <Image
-              src={imgSrc}
-              alt={imgSrc}
-              width={500}
-              height={300}
-              sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 33vw"
-              style={{ width: "90%", height: "auto" }}
-              className="rotate-90 md:rotate-0"
-            />
+            <div
+              className="h-auto w-[90vh] origin-center rotate-90 md:w-[90vw] md:rotate-0 lg:w-[70vw]"
+              style={{
+                transform: `scale(${transform.scale})`,
+              }}
+            >
+              <Image
+                src={imgSrc}
+                alt={imgSrc}
+                width={500}
+                height={300}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 50vw"
+                className="h-full w-full"
+                draggable={false}
+              />
+            </div>
           )}
         </div>
       </div>
