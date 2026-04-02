@@ -6,57 +6,66 @@ import { fromLonLat, transform } from "ol/proj"
 import Point from "ol/geom/Point"
 import { LineString } from "ol/geom"
 
-let lastUpdateTime = 0 // 上次更新时间
-let lastRemoteUpdateTime = Date.now() // 上次远程更新时间
-const REMOTE_UPDATE_INTERVAL = 15000 // 远程更新间隔 15秒
+// 所有模块级状态集中管理，stopUpdate 时完整重置，防止组件重建后状态污染
+let lastUpdateTime = 0
+let lastRemoteUpdateTime = 0 // 初始为 0，首次 update 时立即触发远程拉取
+const REMOTE_UPDATE_INTERVAL = 15000
 
 let remoteState: number[][] | null = null
-let animationFrameId: number | null = null // 存储动画帧ID
-let isUpdating = false // 是否正在更新
+let animationFrameId: number | null = null
+let isUpdating = false
 
-// 记录每架飞机的最后更新时间，用于增量计算
+// 记录每架飞机的最后更新时间（秒），用于位置插值计算
 const planeLastUpdateTime = new Map<string, number>()
 
 function getInterval(zoom: number) {
   const zoomInt = Math.floor(zoom)
-  return [, 5000, 4000, 3000, 2000, 1000, 500, 100, 50][zoomInt] || 16
+  // zoom 1-8 对应的本地帧率间隔（ms），zoom 0 或超出范围时兜底 5000ms
+  const intervals: Record<number, number> = {
+    1: 5000,
+    2: 4500,
+    3: 4000,
+    4: 3000,
+    5: 2000,
+    6: 1000,
+    7: 500,
+    8: 300,
+    9: 100,
+    10: 50,
+    11: 30,
+  }
+  return intervals[zoomInt] ?? 16
+}
+
+function resetState() {
+  lastUpdateTime = 0
+  lastRemoteUpdateTime = 0
+  remoteState = null
+  animationFrameId = null
+  isUpdating = false
+  planeLastUpdateTime.clear()
 }
 
 export function startUpdate(map: OLMap) {
   if (isUpdating) {
-    console.log("Update already running, skipping")
-    return // 如果已经在更新，不再重复启动
+    return
   }
   isUpdating = true
-  console.log("Starting update loop")
   updateLoop(map)
 }
 
 export function stopUpdate() {
-  console.log(
-    "Stopping update loop, isUpdating:",
-    isUpdating,
-    "animationFrameId:",
-    animationFrameId
-  )
   if (animationFrameId !== null) {
     cancelAnimationFrame(animationFrameId)
-    animationFrameId = null
   }
-  isUpdating = false
-  planeLastUpdateTime.clear() // 清空时间记录
-  console.log("Update stopped, isUpdating:", isUpdating)
+  resetState()
 }
 
 function updateLoop(map: OLMap) {
-  if (!isUpdating) {
-    console.log("updateLoop: isUpdating is false, stopping")
-    return
-  }
+  if (!isUpdating) return
 
   update(map)
 
-  // 只有在仍然需要更新时才请求下一帧
   if (isUpdating) {
     animationFrameId = requestAnimationFrame(() => {
       updateLoop(map)
@@ -65,87 +74,103 @@ function updateLoop(map: OLMap) {
 }
 
 function update(map: OLMap) {
-  // 检查是否应该停止更新
-  if (!isUpdating) {
-    console.log("update: isUpdating is false, skipping")
-    return
-  }
+  if (!isUpdating) return
 
-  // update logic
   const now = Date.now()
 
   if (now - lastRemoteUpdateTime > REMOTE_UPDATE_INTERVAL) {
     lastRemoteUpdateTime = now
-    // 执行远程更新逻辑
-    fetchFun("/api/opensky/states").then((data) => {
-      if (isUpdating) {
-        // 只有在仍在更新时才处理数据
-        remoteState = data.states
-        console.log("Remote data updated")
-      } else {
-        console.log("Skipping remote data update, isUpdating is false")
-      }
-    })
+    fetchFun("/api/opensky/states")
+      .then((data) => {
+        // 接口返回后再次确认仍在运行，且数据格式合法
+        if (isUpdating && data?.states && Array.isArray(data.states)) {
+          remoteState = data.states
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch remote states:", err)
+      })
   }
-  const zoom = map.getView().getZoom() as number
 
+  const zoom = map.getView().getZoom() ?? 1
   const interval = getInterval(zoom)
 
   if (now - lastUpdateTime > interval) {
     lastUpdateTime = now
-    // 执行更新逻辑
-    console.log("update: updating layers")
     updateLayers(map)
   }
 }
 
 function updateLayers(map: OLMap) {
-  if (!isUpdating) {
-    return
-  }
+  if (!isUpdating) return
 
   if (remoteState) {
-    // 处理远程数据
     applyRemoteState(map)
   }
-  // 更新数据处理
+  console.log("更新飞机层和轨迹，本地数据")
+
   updatePlaneLayer(map)
   updatePathLayer(map)
 }
+
 function applyRemoteState(map: OLMap) {
+  console.log("处理远程数据")
   const layers = map.getLayers().getArray()
 
-  const airplaneSource = (
-    layers.find((layer) => layer.get("name") === "planes") as VectorLayer
-  ).getSource()
-  const planeFeatures = airplaneSource?.getFeatures()
-  const remoteStatesMap = remoteState?.reduce((map, state) => {
-    map.set(String(state[0]), state)
-    return map
-  }, new Map()) as Map<string, number[]>
-  // 使用远程数据更新
-  for (const feature of planeFeatures || []) {
-    const icao24 = feature.get("state")[0]
+  const planeLayer = layers.find((layer) => layer.get("name") === "planes") as
+    | VectorLayer
+    | undefined
 
-    const newState = remoteStatesMap?.get(String(icao24))
+  // guard: layer 不存在时安全退出
+  if (!planeLayer) return
+  const airplaneSource = planeLayer.getSource()
+  if (!airplaneSource) return
+
+  const planeFeatures = airplaneSource.getFeatures()
+
+  const remoteStatesMap = (remoteState ?? []).reduce((acc, state) => {
+    acc.set(String(state[0]), state)
+    return acc
+  }, new Map<string, number[]>())
+
+  // 遍历现有 feature，更新或移除
+  for (const feature of planeFeatures) {
+    const icao24 = String(feature.get("state")[0])
+    const newState = remoteStatesMap.get(icao24)
 
     if (newState) {
-      feature.set("state", newState)
-      // 更新 geometry 位置到远程数据的新位置
-      feature.setGeometry(new Point(fromLonLat([newState[5], newState[6]])))
-      // 更新这架飞机的时间记录
-      planeLastUpdateTime.set(String(icao24), newState[3])
-      remoteStatesMap.delete(String(icao24))
+      // 坐标和 heading 合法性校验
+      if (
+        typeof newState[5] === "number" &&
+        typeof newState[6] === "number" &&
+        isFinite(newState[5]) &&
+        isFinite(newState[6])
+      ) {
+        feature.set("state", newState)
+        feature.set("heading", (newState[10] ?? 0) * (Math.PI / 180))
+        feature.setGeometry(new Point(fromLonLat([newState[5], newState[6]])))
+        planeLastUpdateTime.set(icao24, newState[3])
+      }
+      remoteStatesMap.delete(icao24)
     } else {
-      airplaneSource?.removeFeature(feature)
-      planeLastUpdateTime.delete(String(icao24))
+      // 远程数据中不再存在该飞机，移除
+      airplaneSource.removeFeature(feature)
+      planeLastUpdateTime.delete(icao24)
     }
   }
 
+  // 远程新增的飞机
   for (const [, newState] of remoteStatesMap) {
+    if (
+      typeof newState[5] !== "number" ||
+      typeof newState[6] !== "number" ||
+      !isFinite(newState[5]) ||
+      !isFinite(newState[6])
+    ) {
+      continue
+    }
     const icao24 = String(newState[0])
-    const headingDegrees = newState[10] || 0
-    const heading = headingDegrees * (Math.PI / 180)
+    const heading = (newState[10] ?? 0) * (Math.PI / 180)
     const feature = new Feature({
       geometry: new Point(fromLonLat([newState[5], newState[6]])),
       state: newState,
@@ -153,57 +178,63 @@ function applyRemoteState(map: OLMap) {
       isHover: 0,
       isSelect: 0,
     })
-
-    airplaneSource?.addFeature(feature)
-    // 记录新飞机的时间
+    airplaneSource.addFeature(feature)
     planeLastUpdateTime.set(icao24, newState[3])
   }
+
   remoteState = null
 }
+
 function updatePlaneLayer(map: OLMap) {
-  // 获取所有飞机的Feature
   const planeLayer = map
     .getLayers()
     .getArray()
-    .find((layer) => layer.get("name") === "planes") as VectorLayer
-  const source = planeLayer.getSource() as VectorSource
+    .find((layer) => layer.get("name") === "planes") as VectorLayer | undefined
+
+  // guard: layer 不存在时安全退出，防止 crash 中断整个更新循环
+  if (!planeLayer) return
+  const source = planeLayer.getSource() as VectorSource | null
+  if (!source) return
+
   const features = source.getFeatures()
   const currentTime = Date.now() / 1000
 
   for (const feature of features) {
-    // 更新飞机特征
     const state = feature.get("state")
+    if (!state) continue
+
     const icao24 = String(state[0])
-    const velocity = state[9]
-    const headingDegrees = state[10] || 0
+    const velocity = state[9] as number | undefined
+
+    // 速度为 0 或无效时跳过（飞机停止），但不再用 !heading 误跳正北方向
+    if (!velocity || !isFinite(velocity)) continue
+
+    const headingDegrees = state[10] ?? 0
     const heading = headingDegrees * (Math.PI / 180)
+    // heading === 0 表示正北，是合法方向，不应跳过
+    if (!isFinite(heading)) continue
 
-    if (!velocity || !heading) {
-      continue
-    }
-
-    // 获取上次更新时间，如果没有则使用当前时间
-    const lastTime = planeLastUpdateTime.get(icao24) || state[3] || currentTime
-    // 计算增量时间差（秒）
+    const lastTime =
+      planeLastUpdateTime.get(icao24) ?? (state[3] as number) ?? currentTime
     const deltaTime = currentTime - lastTime
 
-    // 如果时间差太小，跳过更新
-    if (deltaTime <= 0) {
-      continue
-    }
+    if (deltaTime <= 0) continue
 
-    // 更新这架飞机的时间记录
     planeLastUpdateTime.set(icao24, currentTime)
 
-    // 使用当前 geometry 的坐标作为起点（已包含之前的移动）
-    const currentGeometry = feature.getGeometry() as Point
+    const currentGeometry = feature.getGeometry() as Point | undefined
+    if (!currentGeometry) continue
+
     const [x, y] = currentGeometry.getCoordinates()
-    const d = velocity * deltaTime //移动的距离
-    const newPoint = [x + d * Math.sin(heading), y + d * Math.cos(heading)]
-    // 对于 WebGLVector，需要创建新的 geometry 对象来触发重新渲染
+    const d = velocity * deltaTime
+    const newPoint: [number, number] = [
+      x + d * Math.sin(heading),
+      y + d * Math.cos(heading),
+    ]
+
     feature.setGeometry(new Point(newPoint))
 
-    // 将新的地图坐标转回经纬度，更新到 state 中（供 path 图层使用）
+    // 反算经纬度，更新 state，供 path 图层使用
     const newLonLat = transform(newPoint, "EPSG:3857", "EPSG:4326")
     state[5] = newLonLat[0]
     state[6] = newLonLat[1]
@@ -211,38 +242,43 @@ function updatePlaneLayer(map: OLMap) {
 }
 
 function updatePathLayer(map: OLMap) {
-  // 更新路径图层
   const layers = map.getLayers().getArray()
-  const pathLayer = layers.find(
-    (layer) => layer.get("name") === "path"
-  ) as VectorLayer
-  const planeLayer = layers.find(
-    (layer) => layer.get("name") === "planes"
-  ) as VectorLayer
 
-  const pathsource = pathLayer.getSource() as VectorSource
+  const pathLayer = layers.find((layer) => layer.get("name") === "path") as
+    | VectorLayer
+    | undefined
+  const planeLayer = layers.find((layer) => layer.get("name") === "planes") as
+    | VectorLayer
+    | undefined
 
-  const pathfeatures = pathsource.getFeatures()
+  // guard: 任一 layer 不存在时安全退出
+  if (!pathLayer || !planeLayer) return
 
-  for (const feature of pathfeatures) {
-    const geometry = feature.getGeometry() as LineString
+  const pathSource = pathLayer.getSource() as VectorSource | null
+  const planeSource = planeLayer.getSource()
+  if (!pathSource || !planeSource) return
+
+  const pathFeatures = pathSource.getFeatures()
+
+  for (const feature of pathFeatures) {
+    const geometry = feature.getGeometry() as LineString | undefined
+    if (!geometry) continue
+
     const pathPoints = geometry.getCoordinates()
+    if (pathPoints.length === 0) continue
+
     const icao24 = feature.get("icao24")
-    const planeSource = planeLayer.getSource()
-    if (!planeSource) {
-      continue
-    }
     const planeFeature = planeSource
       .getFeatures()
-      .find((f) => f.get("state")[0] === icao24) as Feature
+      .find((f) => f.get("state")?.[0] === icao24)
 
-    if (!planeFeature) {
-      continue
-    }
-    const planeGeometry = planeFeature.getGeometry() as Point
+    if (!planeFeature) continue
+
+    const planeGeometry = planeFeature.getGeometry() as Point | undefined
+    if (!planeGeometry) continue
+
     const curPoint = planeGeometry.getCoordinates()
     pathPoints[pathPoints.length - 1] = curPoint
-    // 对于 WebGLVector，需要创建新的 geometry 对象来触发重新渲染
     feature.setGeometry(new LineString([...pathPoints]))
   }
 }
