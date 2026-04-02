@@ -60,7 +60,7 @@ export default function page({
             </p>
           </div>
           <div
-            className="block font-sans text-base leading-relaxed font-light text-gray-700 antialiased"
+            className="block h-50 overflow-y-auto font-sans text-base leading-relaxed font-light text-gray-700 antialiased select-none"
             dangerouslySetInnerHTML={{ __html: description }}
           ></div>
         </div>

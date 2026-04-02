@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import tokens from "@/lib/opensky-token-manager"
 
 export const dynamic = "force-dynamic"
-export const runtime = "edge"
 export async function GET(req: NextRequest) {
   try {
     const searchParamsStr = req.nextUrl.searchParams.toString()
@@ -12,6 +11,7 @@ export async function GET(req: NextRequest) {
       `https://opensky-network.org/api/states/all${searchParamsStr ? "?" + searchParamsStr : ""}`,
       {
         headers,
+        signal: AbortSignal.timeout(30000),
       }
     )
     if (!response.ok) {
