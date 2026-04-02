@@ -5,7 +5,7 @@ import DevIcons from "@/components/devtool/devtoolIcon"
 
 export default function Footer() {
   const pathname = usePathname()
-  const isDashboard = pathname.startsWith("/dashboard")
+  const isDashboard = pathname.includes("/dashboard")
   return (
     <>
       {!isDashboard ? (

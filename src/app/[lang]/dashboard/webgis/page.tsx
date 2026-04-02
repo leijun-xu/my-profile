@@ -20,10 +20,24 @@ export default function WebgisPage() {
   const params = useParams()
   const lang = (params?.lang as string) === "en" ? "en" : "zh"
   const t = labels[lang]
+  const isMounted = useRef(true)
 
   useEffect(() => {
-    if (mapRef.current) initMap(mapRef.current)
+    isMounted.current = true
+
+    let initPromise: Promise<void> | null = null
+
+    const init = async () => {
+      if (mapRef.current && isMounted.current) {
+        initPromise = initMap(mapRef.current)
+        await initPromise
+      }
+    }
+
+    init()
+
     return () => {
+      isMounted.current = false
       destroyMap()
     }
   }, [])

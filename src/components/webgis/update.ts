@@ -14,6 +14,7 @@ const REMOTE_UPDATE_INTERVAL = 15000
 let remoteState: number[][] | null = null
 let animationFrameId: number | null = null
 let isUpdating = false
+let abortController: AbortController | null = null
 
 // 记录每架飞机的最后更新时间（秒），用于位置插值计算
 const planeLastUpdateTime = new Map<string, number>()
@@ -44,12 +45,17 @@ function resetState() {
   animationFrameId = null
   isUpdating = false
   planeLastUpdateTime.clear()
+  if (abortController) {
+    abortController.abort()
+    abortController = null
+  }
 }
 
 export function startUpdate(map: OLMap) {
   if (isUpdating) {
     return
   }
+  abortController = new AbortController()
   isUpdating = true
   updateLoop(map)
 }
@@ -74,13 +80,13 @@ function updateLoop(map: OLMap) {
 }
 
 function update(map: OLMap) {
-  if (!isUpdating) return
+  if (!isUpdating || !abortController) return
 
   const now = Date.now()
 
   if (now - lastRemoteUpdateTime > REMOTE_UPDATE_INTERVAL) {
     lastRemoteUpdateTime = now
-    fetchFun("/api/opensky/states")
+    fetchFun("/api/opensky/states", { signal: abortController.signal })
       .then((data) => {
         // 接口返回后再次确认仍在运行，且数据格式合法
         if (isUpdating && data?.states && Array.isArray(data.states)) {
@@ -88,7 +94,9 @@ function update(map: OLMap) {
         }
       })
       .catch((err) => {
-        console.error("Failed to fetch remote states:", err)
+        if (err.name !== "AbortError") {
+          console.error("Failed to fetch remote states:", err)
+        }
       })
   }
 
@@ -97,6 +105,7 @@ function update(map: OLMap) {
 
   if (now - lastUpdateTime > interval) {
     lastUpdateTime = now
+    console.log("interval & zoom", interval, zoom)
     updateLayers(map)
   }
 }
