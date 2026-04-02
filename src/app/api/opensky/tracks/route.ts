@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import tokens from "@/lib/opensky-token-manager"
 
 export const dynamic = "force-dynamic"
-export const runtime = "edge"
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams
