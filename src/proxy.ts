@@ -15,6 +15,8 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith("/assets") ||
     pathname === "/health" ||
     pathname === "/resume" ||
+    pathname === "/zh/resume" ||
+    pathname === "/en/resume" ||
     pathname === "/webgis-public"
 
   if (isPublicRoute) {
