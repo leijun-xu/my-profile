@@ -38,7 +38,7 @@ export const resumeData = {
       role: "全栈开发工程师（偏前端）",
       achievements: [
         "1.PPCN内部Sparrow项目（公司各团队前后端项目的管理平台）开发和维护，技术栈<b class='text-yellow-400'>React+less+umijs+axios+antd+redux</b>。",
-        `2.后期新开项目，普遍使用<b class='text-yellow-400'>Nextjs+Tailwindcss+Shadcn/ui+Next-auth+sso登录</b、Shadcn/ui、tailwindcss、Next-auth、sso登录等技术栈，AI配合开发,
+        `2.后期新开项目，从0到1搭建，普遍使用<b class='text-yellow-400'>Nextjs、Shadcn/ui、tailwindcss、Next-auth、sso登录</b>等技术栈，AI配合开发,
         如商户票据的OCR识别的Document AI管理平台，通过第三方供应商的LLM，让Risk团队通过此平台更高效的处理票据信息，归纳整理，规避风险。`,
       ],
     },
