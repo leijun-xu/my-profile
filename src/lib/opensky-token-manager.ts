@@ -46,7 +46,7 @@ class TokenManager {
           client_secret: CLIENT_SECRET,
         }).toString(),
         // 添加超时设置
-        signal: AbortSignal.timeout(10000), // 10秒超时
+        signal: AbortSignal.timeout(30000), // 30秒超时
       })
 
       if (!response.ok) {

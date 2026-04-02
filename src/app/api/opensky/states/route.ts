@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
       `https://opensky-network.org/api/states/all${searchParamsStr ? "?" + searchParamsStr : ""}`,
       {
         headers,
+        signal: AbortSignal.timeout(30000),
       }
     )
     if (!response.ok) {
