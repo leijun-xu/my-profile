@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
 import fetchFun from "@/lib/fetch"
+import { Dictionary } from "@/dictionaries"
 
 interface ServerFile {
   id: string
@@ -14,12 +15,14 @@ interface ServerFile {
 interface ServerFilesListProps {
   serverFiles: ServerFile[]
   isLoadingFiles: boolean
+  dict: Dictionary
   onRefresh: () => void
   onDelete: (id: string) => void
 }
 
 interface ServerFileItemProps {
   file: ServerFile
+  dict: Dictionary
   onDelete: (id: string) => void
 }
 
@@ -31,7 +34,7 @@ const formatFileSize = (bytes: number): string => {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
 }
 
-function ServerFileItem({ file, onDelete }: ServerFileItemProps) {
+function ServerFileItem({ dict, file, onDelete }: ServerFileItemProps) {
   const [isDownload, setIsDownload] = useState(false)
 
   // 下载文件
@@ -74,14 +77,14 @@ function ServerFileItem({ file, onDelete }: ServerFileItemProps) {
               disabled={isDownload}
               onClick={() => downloadFile(file.fileName)}
             >
-              {isDownload ? "下载中..." : "下载"}
+              {isDownload ? dict.file.downloading : dict.file.download}
             </Button>
             <Button
               size="sm"
               variant="destructive"
               onClick={() => onDelete(file.fileName)}
             >
-              删除
+              {dict.file.delete}
             </Button>
           </div>
         </div>
@@ -93,30 +96,36 @@ function ServerFileItem({ file, onDelete }: ServerFileItemProps) {
 export default function ServerFilesList({
   serverFiles,
   isLoadingFiles,
+  dict,
   onRefresh,
   onDelete,
 }: ServerFilesListProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">服务器文件</h3>
+        <h3 className="text-lg font-semibold">{dict.file.serverFiles}</h3>
         <Button
           size="sm"
           variant="outline"
           onClick={onRefresh}
           disabled={isLoadingFiles}
         >
-          {isLoadingFiles ? "加载中..." : "刷新"}
+          {isLoadingFiles
+            ? dict.file.loadingBtnText
+            : dict.file.loadingBtnReflashText}
         </Button>
       </div>
       {serverFiles.length === 0 ? (
-        <div className="py-8 text-center text-gray-500">暂无文件</div>
+        <div className="py-8 text-center text-gray-500">
+          {dict.file.nofiles}
+        </div>
       ) : (
         <div className="space-y-3">
           {serverFiles.map((file) => (
             <ServerFileItem
               key={file.fileName}
               file={file}
+              dict={dict}
               onDelete={onDelete}
             />
           ))}

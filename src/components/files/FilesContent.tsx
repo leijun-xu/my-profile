@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import fetchFun from "@/lib/fetch"
 import ServerFilesList from "./serverFilesList"
+import { Dictionary } from "@/dictionaries"
 
 const CHUNK_SIZE = 5 * 1024 * 1024 // 5MB per chunk
 const MD5_WORKER_THRESHOLD = 10 * 1024 * 1024 // 10MB以上使用Worker计算MD5
@@ -30,7 +31,7 @@ export interface ServerFile {
   uploadTime: string
 }
 
-export default function FilesContent() {
+export default function FilesContent({ dict }: { dict: Dictionary }) {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -226,7 +227,7 @@ export default function FilesContent() {
 
   // 删除文件
   const deleteFile = async (id: string) => {
-    if (!confirm("确定要删除这个文件吗？")) return
+    if (!confirm(dict.file.deleteConfirmText)) return
 
     const data = await fetchFun(`/api/file/${id}`, {
       method: "DELETE",
@@ -459,7 +460,8 @@ export default function FilesContent() {
             ? {
                 ...f,
                 status: "failed",
-                error: error instanceof Error ? error.message : "MD5计算失败",
+                error:
+                  error instanceof Error ? error.message : dict.file.computeMd5,
               }
             : f
         )
@@ -486,7 +488,8 @@ export default function FilesContent() {
 
   // 取消文件，会删除远程的chunk文件
   const cancelFile = async (fid: string) => {
-    const file = uploadFiles.find((f) => f.id === fid)!
+    const file = uploadFiles.find((f) => f.id === fid)
+    if (!file) return
     if (file.status === "uploading" || file.status === "paused") {
       await cancelUpload(file.id)
     }
@@ -523,7 +526,7 @@ export default function FilesContent() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>文件上传管理</CardTitle>
+        <CardTitle>{dict.file.contentTitle}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* 拖放区域 */}
@@ -546,17 +549,17 @@ export default function FilesContent() {
           <div className="flex flex-col items-center gap-4">
             <div className="text-6xl">📁</div>
             <div>
-              <p className="text-lg font-medium">拖放文件到这里</p>
-              <p className="text-sm text-gray-500">或者</p>
+              <p className="text-lg font-medium">{dict.file.contentDragText}</p>
+              <p className="text-sm text-gray-500">{dict.file.contentOr}</p>
             </div>
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
             >
-              选择文件
+              {dict.file.contentSelectBtn}
             </Button>
             <p className="text-xs text-gray-400">
-              支持大文件上传，自动分片，断点续传
+              {dict.file.contentSelectDesc}
             </p>
           </div>
         </div>
@@ -591,14 +594,14 @@ export default function FilesContent() {
                             }
                           >
                             {uploadFile.status === "completed"
-                              ? "已完成"
+                              ? dict.file.uploadFileStatusComplete
                               : uploadFile.status === "failed"
-                                ? "失败"
+                                ? dict.file.uploadFileStatusFailed
                                 : uploadFile.status === "uploading"
-                                  ? "上传中"
+                                  ? dict.file.uploadFileStatusUploading
                                   : uploadFile.status === "paused"
-                                    ? "已暂停"
-                                    : "等待中"}
+                                    ? dict.file.uploadFileStatusPaused
+                                    : dict.file.uploadFileStatusWaiting}
                           </Badge>
                           {uploadFile.speed && (
                             <span className="text-xs text-gray-500">
@@ -619,7 +622,7 @@ export default function FilesContent() {
                             disabled={!uploadFile.md5}
                             onClick={() => startUpload(uploadFile)}
                           >
-                            开始
+                            {dict.file.uploadBtnStart}
                           </Button>
                         )}
                         {uploadFile.status === "uploading" && (
@@ -628,7 +631,7 @@ export default function FilesContent() {
                             variant="outline"
                             onClick={() => pauseUpload(uploadFile.id)}
                           >
-                            暂停
+                            {dict.file.uploadBtnPause}
                           </Button>
                         )}
                         {uploadFile.status === "paused" && (
@@ -636,7 +639,7 @@ export default function FilesContent() {
                             size="sm"
                             onClick={() => startUpload(uploadFile)}
                           >
-                            继续
+                            {dict.file.uploadBtnContinue}
                           </Button>
                         )}
                         {uploadFile.status === "failed" && (
@@ -645,7 +648,7 @@ export default function FilesContent() {
                             variant="outline"
                             onClick={() => retryUpload(uploadFile.id)}
                           >
-                            重试
+                            {dict.file.uploadBtnRetry}
                           </Button>
                         )}
                         <Button
@@ -653,7 +656,7 @@ export default function FilesContent() {
                           variant="ghost"
                           onClick={() => cancelFile(uploadFile.id)}
                         >
-                          取消
+                          {dict.file.uploadBtnCancel}
                         </Button>
                       </div>
                     </div>
@@ -665,11 +668,12 @@ export default function FilesContent() {
                         <span>
                           {uploadFile.md5
                             ? `${Math.round(uploadFile.progress)}%`
-                            : `计算MD5中 ${Math.round(uploadFile.md5Progress)}%`}
+                            : `${dict.file.computeMd5} ${Math.round(uploadFile.md5Progress)}%`}
                         </span>
                         <span>
                           {uploadFile.uploadedChunks.size} /{" "}
-                          {Math.ceil(uploadFile.file.size / CHUNK_SIZE)} 分片
+                          {Math.ceil(uploadFile.file.size / CHUNK_SIZE)}
+                          {dict.file.slice}
                         </span>
                       </div>
                     </div>
@@ -689,6 +693,7 @@ export default function FilesContent() {
 
         {/* 服务器文件列表 */}
         <ServerFilesList
+          dict={dict}
           serverFiles={serverFiles}
           isLoadingFiles={isLoadingFiles}
           onRefresh={fetchServerFiles}

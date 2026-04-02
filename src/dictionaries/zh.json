@@ -1,0 +1,62 @@
+{
+  "file": {
+    "loadingText": "加载中...",
+    "headTitle": "文件管理",
+    "headDesc": "上传和管理您的文件",
+    "deleteConfirmText": "确定要删除这个文件吗？",
+    "contentTitle": "文件上传管理",
+    "contentDragText": "拖放文件到这里",
+    "contentOr": "或者",
+    "contentSelectBtn": "选择文件",
+    "contentSelectDesc": "支持大文件上传，自动分片，断点续传",
+    "uploadFileStatusComplete": "已完成",
+    "uploadFileStatusFailed": "失败",
+    "uploadFileStatusUploading": "上传中",
+    "uploadFileStatusPaused": "已暂停",
+    "uploadFileStatusWaiting": "等待中",
+    "uploadBtnStart": "开始",
+    "uploadBtnPause": "暂停",
+    "uploadBtnContinue": "继续",
+    "uploadBtnRetry": "重试",
+    "uploadBtnCancel": "取消",
+    "computeMd5": "计算MD5中",
+    "slice": "分片",
+    "download": "下载",
+    "downloading": "下载中...",
+    "delete": "删除",
+    "serverFiles": "服务器文件",
+    "loadingBtnText": "加载中...",
+    "loadingBtnReflashText": "刷新",
+    "nofiles": "暂无文件"
+  },
+  "setting": {
+    "headTitle": "设置",
+    "headDesc": "管理您的账户和偏好设置",
+    "profile": "个人资料",
+    "username": "用户名",
+    "usernamePlaceholder": "请输入用户名",
+    "email": "邮箱",
+    "emailPlaceholder": "请输入邮箱",
+    "bio": "简介",
+    "bioPlaceholder": "请输入简介",
+    "saveBtnText": "保存更改"
+  },
+  "webgis": {
+    "title": "全球航班实时动态飞行",
+    "datasource": "数据源"
+  },
+  "dashboard": {
+    "filesTotal": "文件总数",
+    "saveArea": "存储空间",
+    "thisMounthUpload": "本月上传",
+    "resumeView": "简历浏览",
+    "navigationDashboard": "仪表盘",
+    "navigationFiles": "文件管理",
+    "navigationSetting": "设置",
+    "navigationWebgis": "WebGIS",
+    "navigationResume": "简历",
+    "myworkspace": "我的工作台",
+    "unlogin": "未登录",
+    "logout": "登出"
+  }
+}
