@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "src/app/api/opensky/**": {
+      "maxDuration": 60,
+      "regions": ["fra1"]
+    }
+  }
+}
