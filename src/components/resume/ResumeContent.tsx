@@ -17,13 +17,13 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip"
-import { resumeData } from "@/app/api/chat/prompt"
+import type { ResumeData } from "@/dictionaries"
 import Image from "next/image"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import TWCard from "@/components/tw/card"
 
-export default function ResumeContent() {
+export default function ResumeContent({ resumeData }: { resumeData: ResumeData }) {
   const [show, setShow] = useState(false)
   const [imgSrc, setImgSrc] = useState<string | null>(null)
   const [transform, setTransform] = useState({ scale: 1, startDistance: 0 })
@@ -181,16 +181,20 @@ export default function ResumeContent() {
         </h4>
         <div className="my-10 grid grid-cols-1 text-gray-300 md:grid-cols-6">
           <div className="col-span-2 mb-4 flex flex-col md:mb-0">
-            <h5 className="text-xl font-bold md:text-2xl">南京信息工程大学</h5>
-            <h6 className="text-lg font-bold">信息系统工程（本科）</h6>
-            <p>2009/09 - 2013/07</p>
+            <h5 className="text-xl font-bold md:text-2xl">
+              {resumeData.education[0].school}
+            </h5>
+            <h6 className="text-lg font-bold">
+              {resumeData.education[0].major}（{resumeData.education[0].degree}
+              ）
+            </h6>
+            <p>{resumeData.education[0].period}</p>
           </div>
           <div className="col-span-4 flex flex-col">
             <ul>
-              <li>英语CET-6</li>
-              <li>日语JLPT-2</li>
-              <li>证券从业资格证</li>
-              <li>中级经济师-工商管理</li>
+              {resumeData.education[0].certificates.map((cert, index) => (
+                <li key={index}>{cert}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -208,7 +212,7 @@ export default function ResumeContent() {
               <Mail className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-medium">765285102@qq.com</p>
+              <p className="font-medium">{resumeData.personal.email}</p>
             </div>
           </div>
 
@@ -217,7 +221,7 @@ export default function ResumeContent() {
               <PhoneCall className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-medium">+86 15221770395</p>
+              <p className="font-medium">{resumeData.personal.phone}</p>
             </div>
           </div>
 
@@ -226,7 +230,7 @@ export default function ResumeContent() {
               <MapPin className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-medium">上海 · 浦东</p>
+              <p className="font-medium">{resumeData.personal.location}</p>
             </div>
           </div>
         </div>

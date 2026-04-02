@@ -18,23 +18,27 @@ import {
 } from "lucide-react"
 import DevIcons from "@/components/devtool/devtoolIcon"
 import AIChat from "@/components/ai/ai-chat"
+import LangSwitcher from "@/components/dashboard/LangSwitcher"
+import { Dictionary } from "@/dictionaries"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
+  dict: Dictionary
+  lang: string
 }
 
-const navigation = [
-  { name: "看板", href: "/dashboard", icon: Home },
-  { name: "简历", href: "/dashboard/resume", icon: FileText },
-  { name: "文件管理", href: "/dashboard/files", icon: FolderOpen },
-  { name: "WEBGIS", href: "/dashboard/webgis", icon: Locate },
-  { name: "设置", href: "/dashboard/settings", icon: Settings },
-]
-
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, dict, lang }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const { data: session } = useSession()
+
+  const navigation = [
+    { name: dict.dashboard.navigationDashboard, href: `/${lang}/dashboard`, icon: Home },
+    { name: dict.dashboard.navigationResume, href: `/${lang}/dashboard/resume`, icon: FileText },
+    { name: dict.dashboard.navigationFiles, href: `/${lang}/dashboard/files`, icon: FolderOpen },
+    { name: dict.dashboard.navigationWebgis, href: `/${lang}/dashboard/webgis`, icon: Locate },
+    { name: dict.dashboard.navigationSetting, href: `/${lang}/dashboard/settings`, icon: Settings },
+  ]
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -56,7 +60,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center justify-between border-b px-4 lg:px-6">
-            <h1 className="text-xl font-bold text-gray-800">我的工作台</h1>
+            <h1 className="text-xl font-bold text-gray-800">{dict.dashboard.myworkspace}</h1>
             <Button
               variant="ghost"
               size="icon"
@@ -100,7 +104,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-gray-900">
-                  {session?.user?.name || "未登录"}
+                  {session?.user?.name || dict.dashboard.unlogin}
                 </p>
                 <p className="truncate text-xs text-gray-500">
                   {session?.user?.email || ""}
@@ -113,7 +117,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               onClick={() => signOut({ callbackUrl: "/auth/signin" })}
             >
               <LogOut className="mr-2 h-4 w-4" />
-              登出
+              {dict.dashboard.logout}
             </Button>
           </div>
         </div>
@@ -135,6 +139,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex-1" />
 
           <div className="flex items-center gap-4">
+            {/* 语言切换 */}
+            <LangSwitcher lang={lang} />
+
             <div className="hidden items-center gap-3 md:flex">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-500 text-sm text-white">
@@ -143,7 +150,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </Avatar>
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
-                  {session?.user?.name || "未登录"}
+                  {session?.user?.name || dict.dashboard.unlogin}
                 </p>
               </div>
             </div>

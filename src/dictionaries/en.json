@@ -1,0 +1,62 @@
+{
+  "file": {
+    "loadingText": "Loading...",
+    "headTitle": "File Management",
+    "headDesc": "Upload and manage your files",
+    "deleteConfirmText": "Are you sure you want to delete this file?",
+    "contentTitle": "File Upload Manager",
+    "contentDragText": "Drop files here",
+    "contentOr": "or",
+    "contentSelectBtn": "Select File",
+    "contentSelectDesc": "Supports large file uploads with auto chunking and resumable transfer",
+    "uploadFileStatusComplete": "Completed",
+    "uploadFileStatusFailed": "Failed",
+    "uploadFileStatusUploading": "Uploading",
+    "uploadFileStatusPaused": "Paused",
+    "uploadFileStatusWaiting": "Waiting",
+    "uploadBtnStart": "Start",
+    "uploadBtnPause": "Pause",
+    "uploadBtnContinue": "Resume",
+    "uploadBtnRetry": "Retry",
+    "uploadBtnCancel": "Cancel",
+    "computeMd5": "Computing MD5",
+    "slice": "Chunk",
+    "download": "Download",
+    "downloading": "Downloading...",
+    "delete": "Delete",
+    "serverFiles": "Server Files",
+    "loadingBtnText": "Loading...",
+    "loadingBtnReflashText": "Refresh",
+    "nofiles": "No files found"
+  },
+  "setting": {
+    "headTitle": "Settings",
+    "headDesc": "Manage your account and preferences",
+    "profile": "Profile",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "bio": "Bio",
+    "bioPlaceholder": "Enter your bio",
+    "saveBtnText": "Save Changes"
+  },
+  "webgis": {
+    "title": "Global Real-Time Flight Tracking",
+    "datasource": "Data Source"
+  },
+  "dashboard": {
+    "filesTotal": "Total Files",
+    "saveArea": "Storage Used",
+    "thisMounthUpload": "Uploads This Month",
+    "resumeView": "Resume Views",
+    "navigationDashboard": "Dashboard",
+    "navigationFiles": "File Management",
+    "navigationSetting": "Settings",
+    "navigationWebgis": "WebGIS",
+    "navigationResume": "Resume",
+    "myworkspace": "My Workspace",
+    "unlogin": "Not Logged In",
+    "logout": "Logout"
+  }
+}

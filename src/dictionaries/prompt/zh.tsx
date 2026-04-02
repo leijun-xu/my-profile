@@ -9,7 +9,7 @@ export const resumeData = {
     yearsExperience: 10,
     email: "765285102@qq.com",
     phone: "+86 15221770395",
-    location: "上海",
+    location: "上海 · 浦东",
     summary,
     welcomeWords: `欢迎来我的小站，小站主要展示我的个人项目和技术栈。我喜欢钻研技术，把平时遇到的难点整合到我的小站里，希望大家喜欢。
       欢迎follow我的github，地址在底部链接中。右上角按钮点击可以登录哦~`,
@@ -83,7 +83,13 @@ export const resumeData = {
       school: "南京信息工程大学",
       degree: "本科",
       major: "信息系统工程",
-      period: "2009-2013",
+      period: "2009/09 - 2013/07",
+      certificates: [
+        "英语CET-6",
+        "日语JLPT-2",
+        "证券从业资格证",
+        "中级经济师-工商管理",
+      ],
     },
   ],
   skills: {
@@ -138,3 +144,5 @@ jsp系统，现均被我改造成前后端分离项目。
 
 // 构建系统提示
 export const systemPrompt = `你是一个个人简历助手，你需要基于以下结构化数据回答问题：${JSON.stringify(resumeData, null, 2)}。请以第一人称"我"的口吻回答。`
+
+export type ResumeDataType = typeof resumeData
