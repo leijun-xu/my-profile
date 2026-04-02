@@ -158,7 +158,7 @@ export default function FilesContent({ dict }: { dict: Dictionary }) {
     fileId: string,
     fileName: string,
     fileSize: number,
-    onProgress: (progress: number, speed: string) => void,
+    onChunkComplete: () => void,
     signal?: AbortSignal
   ): Promise<void> => {
     const start = chunkIndex * CHUNK_SIZE
@@ -173,26 +173,25 @@ export default function FilesContent({ dict }: { dict: Dictionary }) {
     formData.append("fileName", fileName)
     formData.append("fileSize", fileSize.toString())
 
-    const startTime = Date.now()
+    try {
+      const response = await fetchFun("/api/file/upload", {
+        method: "POST",
+        body: formData,
+        signal,
+      })
 
-    // 检查是否被取消
-    if (signal?.aborted) {
-      throw new Error("Upload cancelled")
-    }
+      if (response.error) {
+        throw new Error(response.error || "Upload failed")
+      }
 
-    const response = await fetchFun("/api/file/upload", {
-      method: "POST",
-      body: formData,
-      signal,
-    })
-
-    const endTime = Date.now()
-    const duration = (endTime - startTime) / 1000
-    const speed = (chunk.size / 1024 / 1024 / duration).toFixed(2)
-    onProgress(((chunkIndex + 1) / totalChunks) * 100, `${speed} MB/s`)
-
-    if (response.error) {
-      throw new Error(response.error || "Upload failed")
+      // 上传成功后调用回调
+      onChunkComplete()
+    } catch (error) {
+      // 如果是 AbortError，说明是用户主动取消/暂停，抛出一个特定的错误
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("Upload cancelled by user")
+      }
+      throw error
     }
   }
 
@@ -335,67 +334,60 @@ export default function FilesContent({ dict }: { dict: Dictionary }) {
           fileId,
           fileName,
           fileSize,
-          (progress, speed) => {
-            setUploadFiles((prev) =>
-              prev.map((f) =>
+          () => {
+            // 上传完成后更新进度，避免闭包问题
+            setUploadFiles((prev) => {
+              const currentFile = prev.find((f) => f.id === uploadFile.id)
+              if (!currentFile) return prev
+              const newUploadedChunks = new Set(currentFile.uploadedChunks)
+              newUploadedChunks.add(i)
+              const progress = (newUploadedChunks.size / totalChunks) * 100
+              return prev.map((f) =>
                 f.id === uploadFile.id
                   ? {
                       ...f,
-                      progress:
-                        (uploadedChunkSet.size / totalChunks) * 100 +
-                        progress *
-                          ((totalChunks - uploadedChunkSet.size) / totalChunks),
-                      speed,
+                      uploadedChunks: newUploadedChunks,
+                      progress,
                     }
                   : f
               )
-            )
+            })
           },
           abortController?.signal
         )
-
-        uploadedChunkSet.add(i)
-        setUploadFiles((prev) =>
-          prev.map((f) =>
-            f.id === uploadFile.id
-              ? { ...f, uploadedChunks: uploadedChunkSet }
-              : f
-          )
-        )
       }
 
-      // 合并分片 后端处理了
-      const res = await fetchFun("/api/file/merge", {
-        method: "POST",
-        body: JSON.stringify({ fileId }),
+      // 所有分片上传完成，等待后端自动合并
+      // 设置为完成状态
+      setUploadFiles((prev) =>
+        prev.map((f) =>
+          f.id === uploadFile.id
+            ? { ...f, status: "completed", progress: 100 }
+            : f
+        )
+      )
+
+      // 上传完成后刷新文件列表
+      fetchServerFiles().then(() => {
+        setUploadFiles((prev) => prev.filter((f) => f.id !== uploadFile.id))
       })
-      if (!res.error) {
-        setUploadFiles((prev) =>
-          prev.map((f) =>
-            f.id === uploadFile.id
-              ? { ...f, status: "completed", progress: 100 }
-              : f
-          )
-        )
-
-        // 上传完成后刷新文件列表
-        fetchServerFiles().then(() => {
-          setUploadFiles((prev) => prev.filter((f) => f.id !== uploadFile.id))
-        })
-      }
     } catch (error) {
       console.error("Upload error:", error)
 
-      // 检查是否是用户主动暂停
+      // 检查是否是用户主动暂停或取消
       const isPaused = pausedUploadIdsRef.current.has(uploadFile.id)
+      const isCancelled = error instanceof Error && (
+        error.message === "Upload cancelled by user" ||
+        error.message === "Upload cancelled"
+      )
 
       setUploadFiles((prev) =>
         prev.map((f) =>
           f.id === uploadFile.id
             ? {
                 ...f,
-                status: isPaused ? "paused" : "failed",
-                error: isPaused
+                status: isPaused || isCancelled ? "paused" : "failed",
+                error: isPaused || isCancelled
                   ? undefined
                   : error instanceof Error
                     ? error.message

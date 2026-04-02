@@ -22,7 +22,7 @@ export default function page({
         <div
           className="bg-blue-gray-500 shadow-blue-gray-500/40 relative mx-4 mt-4 aspect-5/3 overflow-hidden rounded-xl bg-clip-border text-white shadow-lg"
           onClick={() => {
-            onImgClick && onImgClick(gif)
+            if (onImgClick && typeof onImgClick === "function") onImgClick(gif)
           }}
         >
           <Image
@@ -67,7 +67,7 @@ export default function page({
         <div className="p-6 pt-3">
           <Link href={href}>
             <button
-              className="block w-full rounded-lg bg-pink-500 px-7 py-3.5 text-center align-middle font-sans text-sm font-bold text-white uppercase shadow-md shadow-pink-500/20 transition-all select-none hover:shadow-lg hover:shadow-pink-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+              className="block w-full cursor-pointer rounded-lg bg-pink-500 px-7 py-3.5 text-center align-middle font-sans text-sm font-bold text-white uppercase shadow-md shadow-pink-500/20 transition-all select-none hover:shadow-lg hover:shadow-pink-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
               type="button"
               data-ripple-light="true"
             >

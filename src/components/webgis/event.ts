@@ -13,6 +13,8 @@ let hoverEventKey: EventsKey | null = null
 let clickEventKey: EventsKey | null = null
 let moveEndEventKey: EventsKey | null = null // 补充 moveend 事件 key，确保能被清除
 
+let isAttached = false
+
 function attachMoveEvent(map: Map) {
   let lastHoverFeature: Feature | null = null
   const container = map.getTargetElement()
@@ -41,6 +43,43 @@ function attachMoveEvent(map: Map) {
 
 function attachClickEvent(map: Map) {
   let lastClickFeature: Feature | null = null
+  const pathLayers = map
+    .getLayers()
+    .getArray()
+    .find((layer) => layer.get("name") === "path") as VectorLayer | undefined
+
+  async function addPath(planeFeature: Feature) {
+    const icao24 = planeFeature.get("state")?.[0]
+    if (!icao24) return
+
+    if (!isAttached) return
+
+    try {
+      const data = await fetchFun(`/api/opensky/tracks?icao24=${icao24}&time=0`)
+
+      let { path } = data ?? {}
+      if (!path || path.length === 0) return
+
+      path = (path as number[][]).map((p) => fromLonLat([p[2], p[1]]))
+      const geometry = planeFeature.getGeometry() as Point | undefined
+      if (!geometry) return
+
+      const curPoint = geometry.getCoordinates() as Coordinate
+      pathLayers?.getSource()?.addFeature(
+        new Feature({
+          geometry: new LineString([...path, curPoint]),
+          icao24,
+        })
+      )
+    } catch (err) {
+      console.error("Failed to fetch flight path:", err)
+    }
+  }
+
+  function removePath() {
+    pathLayers?.getSource()?.clear()
+  }
+
   clickEventKey = map.on("click", (e) => {
     if (e.dragging) return
 
@@ -74,40 +113,6 @@ function attachClickEvent(map: Map) {
       }
     }
   })
-
-  const pathLayers = map
-    .getLayers()
-    .getArray()
-    .find((layer) => layer.get("name") === "path") as VectorLayer | undefined
-
-  async function addPath(planeFeature: Feature) {
-    const icao24 = planeFeature.get("state")?.[0]
-    if (!icao24) return
-
-    try {
-      const data = await fetchFun(`/api/opensky/tracks?icao24=${icao24}&time=0`)
-      let { path } = data ?? {}
-      if (!path || path.length === 0) return
-
-      path = (path as number[][]).map((p) => fromLonLat([p[2], p[1]]))
-      const geometry = planeFeature.getGeometry() as Point | undefined
-      if (!geometry) return
-
-      const curPoint = geometry.getCoordinates() as Coordinate
-      pathLayers?.getSource()?.addFeature(
-        new Feature({
-          geometry: new LineString([...path, curPoint]),
-          icao24,
-        })
-      )
-    } catch (err) {
-      console.error("Failed to fetch flight path:", err)
-    }
-  }
-
-  function removePath() {
-    pathLayers?.getSource()?.clear()
-  }
 }
 
 function attachMoveEndEvent(map: Map) {
@@ -128,6 +133,7 @@ function attachMoveEndEvent(map: Map) {
 }
 
 export function attachEvent(map: Map) {
+  isAttached = true
   attachClickEvent(map)
   attachMoveEvent(map)
   attachMoveEndEvent(map)
@@ -135,6 +141,7 @@ export function attachEvent(map: Map) {
 
 // Clean up all event listeners when component unmounts
 export function detachEvents() {
+  isAttached = false
   if (hoverEventKey) {
     unByKey(hoverEventKey)
     hoverEventKey = null
