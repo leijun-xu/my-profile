@@ -4,15 +4,30 @@ import { Box } from "lucide-react"
 
 // 技能数据
 const skillsData = [
+  // 前端
   { name: "React", level: 95, category: "frontend", color: "#61DAFB" },
   { name: "Next.js", level: 88, category: "frontend", color: "#F24E1E" },
-  { name: "Shadcn", level: 90, category: "ui", color: "#F05032" },
+  { name: "Vue3", level: 95, category: "frontend", color: "#42B883" },
   { name: "TypeScript", level: 90, category: "frontend", color: "#3178C6" },
-  { name: "Node.js", level: 85, category: "backend", color: "#339933" },
-  { name: "Vue", level: 80, category: "frontend", color: "#42B883" },
-  { name: "Webpack", level: 75, category: "tools", color: "#8DD6F9" },
-  { name: "MySql", level: 75, category: "database", color: "#F29E39" },
-  { name: "Webgis", level: 60, category: "frontend", color: "#3498db" },
+  { name: "Vite", level: 85, category: "frontend", color: "#646CFF" },
+  // 后端
+  { name: "NestJS", level: 88, category: "backend", color: "#E0234E" },
+  { name: "BullMQ", level: 78, category: "backend", color: "#E6484F" },
+  { name: "Socket.io", level: 76, category: "backend", color: "#5C5C5C" },
+  { name: "MinIO", level: 72, category: "backend", color: "#C72E49" },
+  // 数据库
+  { name: "Prisma", level: 85, category: "database", color: "#5A67D8" },
+  { name: "PostgreSQL", level: 82, category: "database", color: "#336791" },
+  { name: "Redis", level: 76, category: "database", color: "#DC382D" },
+  // AI
+  {
+    name: "LangChain.js/LangGraph.js",
+    level: 74,
+    category: "ai",
+    color: "#4CAF50",
+  },
+  // 工程化
+  { name: "pnpm", level: 85, category: "tools", color: "#F69220" },
 ]
 export default function SkillsDemo() {
   return (
