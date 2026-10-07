@@ -23,7 +23,11 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import TWCard from "@/components/tw/card"
 
-export default function ResumeContent({ resumeData }: { resumeData: ResumeData }) {
+export default function ResumeContent({
+  resumeData,
+}: {
+  resumeData: ResumeData
+}) {
   const [show, setShow] = useState(false)
   const [imgSrc, setImgSrc] = useState<string | null>(null)
   const [transform, setTransform] = useState({ scale: 1, startDistance: 0 })
@@ -252,7 +256,7 @@ export default function ResumeContent({ resumeData }: { resumeData: ResumeData }
           },
           {
             icon: FileUser,
-            href: "/assets/xuleijun-Frontend-resume.pdf",
+            href: "/assets/xuleijun-fullstack-resume.pdf",
             label: "Resume",
             download: true,
             tooltip: "This is my PDF resume,you can download it.",

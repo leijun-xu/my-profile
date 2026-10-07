@@ -15,6 +15,13 @@ export const resumeData = {
       欢迎follow我的github，地址在底部链接中。右上角按钮点击可以登录哦~`,
     keyProjects: [
       {
+        href: "http://120.26.245.143/",
+        title: "English App",
+        gif: "/assets/englishApp.png",
+        description: `基于 **pnpm Monorepo + 微服务** 架构的全栈 AI 英语学习平台。<b class='text-blue-400'>前端采用 **Vue3 全家桶**（Pinia/Element Plus/Vite/Tailwind/Three.js），
+        后端基于 **NestJS** 拆分为业务与 AI 双微服务，数据层使用 **Prisma 7 + PostgreSQL**，集成 Redis（BullMQ 消息队列）、MinIO 文件存储、支付宝支付、Socket.io 实时通信</b>。`,
+      },
+      {
         href: "/dashboard/files",
         title: "大文件管理",
         gif: "/assets/file-md5.gif",
@@ -32,6 +39,21 @@ export const resumeData = {
     ],
   },
   experiences: [
+    {
+      company: "自研项目",
+      period: "自研",
+      role: "全栈开发工程师",
+      achievements: [
+        `访问地址<a href="http://120.26.245.143/" target="_blank"><b class='text-yellow-400'>http://120.26.245.143/</b></a>`,
+        `1.采用 <b class='text-yellow-400'>pnpm Monorepo + 微服务 + workspace 架构</b>，多包统一管理依赖与版本（pnpm-workspace.yaml + packageManager 锁定 pnpm 版本）。
+        前端（@en/web）、业务微服务（@en/server :3000）、AI 微服务（@en/ai :3001）、共享类型包（@en/common/ @en/config/ @en/libs-shared）、埋点 SDK（@en/tracker）独立成包，实现类型共享、
+        构建隔离、按需部署`,
+        `2.前端基于<b class='text-yellow-400'> Vue3 全家桶（Vue3 + Vue Router + Pinia + Element Plus + Axios + Vite + Tailwind CSS）</b>构建单页应用,基于<b class='text-yellow-400'> Three.js + GSAP 实现 3D 场景与动效（词汇 / 课程可视化展示，GSAP 驱动交互动画）</b>`,
+        `3.后端基于 <b class='text-yellow-400'>NestJS（依赖注入 + 模块化 + 守卫 / 拦截器 / 管道体系），数据访问使用 Prisma ORM，文件存储集成 MinIO（对象存储，课程封面 / 头像），邮件发送集成 nodemailer（每日记忆报告邮件），异步任务使用 BullMQ（Redis 队列），支付集成支付宝 SDK（电脑网站支付 + 异步回调验签）</b>`,
+        `4.数据层两库分离：PostgreSQL 承载业务数据（Prisma 管理表结构，含 langchain 会话状态库，自研埋点 SDK，覆盖事件 / 性能（Web Vitals）/ 错误 / 路由 / PV-UV 五类统计，数据统一上报 PostgreSQL 落库）、Redis 承担缓存与 BullMQ 消息队列`,
+        `5.AI 服务基于 LangChain.js + LangGraph.js 接入 DeepSeek 大模型：通过 LangChain v1 createAgent（底层基于 LangGraph StateGraph）构建 ReAct Agent，实现多角色 Prompt 对话体系（5 类角色：老师 / 口语陪练等，prompt 可配置）利用 LangGraph 官方 checkpoint（PostgresSaver） 持久化多轮会话状态，按 thread_id 隔离用户，实现连续记忆对话SSE 流式输出（agent.stream(..., streamMode: "messages")）自定义 Tool：Agent 按需自主查询用户学习数据（digest 报告生成场景）联网搜索增强：集成博查（Bocha）搜索 API，webSearch 开启时把实时搜索结果注入 Prompt 再回答，附参考来源深度思考模型：接入 DeepSeek Reasoner 推理模型，处理复杂答疑。`,
+      ],
+    },
     {
       company: "Paypal贝宝科技",
       period: "2023/06-至今",
