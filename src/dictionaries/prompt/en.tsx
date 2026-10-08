@@ -40,9 +40,9 @@ export const resumeData = {
   },
   experiences: [
     {
-      company: "自研项目",
-      period: "自研",
-      role: "全栈开发工程师",
+      company: "Self-research Project",
+      period: "Self",
+      role: "Full-Stack Developer",
       achievements: [
         `1. Adopt the <b class='text-yellow-400'>pnpm Monorepo + Microservice + Workspace architecture</b> for unified dependency and version management across multiple packages (pnpm-workspace.yaml + packageManager to lock the pnpm version).
 Separate packages for frontend (@en/web), business microservice (@en/server :3000), AI microservice (@en/ai :3001), shared type packages (@en/common/ @en/config/ @en/libs-shared), and tracking SDK (@en/tracker) to achieve type sharing,
