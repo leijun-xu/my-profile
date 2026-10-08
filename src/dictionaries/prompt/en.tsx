@@ -17,7 +17,7 @@ export const resumeData = {
       {
         href: "http://120.26.245.143/",
         title: "English App",
-        gif: "/assets/file-md5.gif",
+        gif: "/assets/englishApp.png",
         description: `A full-stack AI English learning platform built on the **pnpm Monorepo + Microservices** architecture. The frontend uses **Vue3** (Pinia/Element Plus/Vite/Tailwind/Three.js),
           while the backend is structured into business and AI microservices using **NestJS**, with the data layer utilizing **Prisma 7 + PostgreSQL**. It integrates Redis (BullMQ message queue), MinIO file storage, Alipay payments, and Socket.io for real-time communication.`,
       },
